@@ -1,0 +1,89 @@
+extends ../layouts/main
+
+block content
+  main.dashboard-shell
+    .topbar
+      a.brand(href='/') Tram Sac Hub
+      .nav-actions
+        a.btn.ghost(href='/') Trang chu
+        a.btn.ghost(href='/admin-tools') Admin tools
+        button#dashboardLogoutBtn.btn.primary(type='button') Dang xuat
+
+    .dashboard-hero
+      section.panel.soft
+        p.eyebrow Dashboard
+        h1 Trung tam quan tri tram sac
+        p.lead Theo doi phien dang nhap admin, mo nhanh cong cu import, nhap tay du lieu va bat dau van hanh module booking.
+        #dashboardStatus.status-box Dang kiem tra phien dang nhap...
+
+      section.panel
+        h2 Ho so admin
+        .stack
+          div
+            strong Ho ten:
+            span#adminName  --
+          div
+            strong Email:
+            span#adminEmail  --
+          div
+            strong Vai tro:
+            span#adminRole  --
+          div
+            strong Tao tu:
+            span#adminCreated  --
+
+    .dashboard-meta
+      .meta-card
+        .label Bang gia
+        .value 01
+      .meta-card
+        .label Tram sac
+        .value 02
+      .meta-card
+        .label Tram doi pin
+        .value 03
+      .meta-card
+        .label Booking
+        .value 04
+
+    .dashboard-grid
+      section.panel
+        h2 Loi vao nhanh
+        .action-list
+          .action-item
+            .action-copy
+              strong Quan ly bang gia
+              p.helper Tao bang gia moi hoac import pricing truoc khi nhap cong sac.
+            button#pricingLink.btn.primary(type='button') Mo
+          .action-item
+            .action-copy
+              strong Quan ly tram sac
+              p.helper Theo doi du lieu station va co the nhap tay truc tiep tren admin tools.
+            button#stationLink.btn.primary(type='button') Mo
+          .action-item
+            .action-copy
+              strong Quan ly tram doi pin
+              p.helper Dung cho du lieu VinFast hoac cac diem doi pin tuong tu.
+            button#swapLink.btn.primary(type='button') Mo
+          .action-item
+            .action-copy
+              strong Quan ly booking
+              p.helper Tao booking thu cong, kiem tra trung lich va tao customer tu giao dien admin.
+            button#bookingLink.btn.primary(type='button') Mo
+          .action-item
+            .action-copy
+              strong Import va nhap tay
+              p.helper Upload CSV/JSON hoac dien form de tao du lieu nhanh ngay tren web.
+            button#importLink.btn.primary(type='button') Mo
+
+      section.panel
+        h2 Goi y buoc tiep theo
+        ul.helper
+          li Tao `pricings` truoc.
+          li Tao `stations` va `swap-stations`.
+          li Sau do tao `charging-points`.
+          li Khi da co cong sac, ban co the tao `bookings` de kiem tra nghiep vu dat lich.
+        p.badge San sang mo rong charging session va transaction
+
+block scripts
+  script(src='/js/dashboard.js')

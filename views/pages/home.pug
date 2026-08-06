@@ -1,0 +1,132 @@
+extends ../layouts/main
+
+block head
+  link(rel='stylesheet', href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css')
+
+block content
+  main.app-shell
+    header.app-header
+      .header-left
+        button#sidebarToggle.icon-btn(type='button', aria-label='Mo menu') Menu
+        a.app-logo(href='/') S.TOUCH
+        button#themeToggle.theme-toggle(type='button', aria-label='Doi giao dien')
+          span#themeLabel Light
+      .header-actions
+        .header-search-wrap
+          button#searchToggle.icon-btn(type='button', aria-label='Tim kiem') Search
+          input#headerSearch.header-search(type='search', placeholder='Tim tram, dia chi...')
+        .header-menu-wrap
+          button#notificationToggle.icon-btn(type='button', aria-label='Thong bao') Bell
+          .floating-menu.notification-menu#notificationMenu
+            strong Thong bao
+            p#notificationEmpty Chua co thong bao moi.
+        button#languageToggle.language-toggle(type='button') VI
+        .profile-wrap
+          button#profileToggle.profile-trigger(type='button', aria-label='Mo ho so')
+            span#avatarInitials.avatar NK
+            span.profile-copy
+              strong#profileName Nguoi dung
+              small#profileWallet Vi: 0 VND
+          .floating-menu.profile-menu#profileMenu
+            strong#profileMenuName Nguoi dung
+            button#profileAction(type='button') Ho so ca nhan
+            button#logoutAction.secondary(type='button') Dang xuat
+
+    .app-body
+      aside#appSidebar.app-sidebar
+        .sidebar-brand
+          span.sidebar-mark ST
+          div
+            strong Quan tri tram sac
+            small Web app
+        nav.app-nav(aria-label='Dieu huong chinh')
+          button.nav-item.active(type='button', data-view='map')
+            span.nav-icon Map
+            span(data-i18n='map') Ban do
+          button.nav-item(type='button', data-view='stations')
+            span.nav-icon ST
+            span(data-i18n='stations') Tram sac
+          button.nav-item(type='button', data-view='swap')
+            span.nav-icon SW
+            span(data-i18n='swap') Tram doi pin
+          button.nav-item(type='button', data-view='notifications')
+            span.nav-icon NT
+            span(data-i18n='notifications') Thong bao
+          a.nav-item(href='/dashboard')
+            span.nav-icon AD
+            span(data-i18n='admin') Quan tri admin
+        .sidebar-footer
+          span.status-dot
+          span#mapConnectionStatus Dang ket noi du lieu...
+
+      section.map-workspace
+        .workspace-toolbar
+          div
+            p.eyebrow(data-i18n='eyebrow') BAN DO TRAM SAC
+            h1(data-i18n='title') Tim tram sac gan ban
+          .toolbar-actions
+            button#locateMeBtn.outline-btn(type='button') Vi tri cua toi
+            button#refreshMapBtn.primary-btn(type='button') Lam moi
+
+        .map-filters
+          .filter-field
+            label(for='stationSearch' data-i18n='searchLabel') Tim kiem
+            input#stationSearch(type='search', placeholder='Ten tram hoac dia chi')
+          .filter-field
+            label(for='stationType' data-i18n='typeLabel') Loai tram
+            select#stationType
+              option(value='all') Tat ca
+              option(value='charging') Tram sac
+              option(value='swap') Tram doi pin
+          .filter-field
+            label(for='availabilityFilter' data-i18n='availabilityLabel') Trang thai
+            select#availabilityFilter
+              option(value='all') Tat ca
+              option(value='available') Con cho
+              option(value='maintenance') Bao tri
+
+        .map-content
+          .map-panel
+            .map-stats
+              .stat-card
+                span(data-i18n='statStations') Tram dang hien thi
+                strong#stationCount 0
+              .stat-card
+                span(data-i18n='statPoints') Cong sac kha dung
+                strong#availablePointCount 0
+              .stat-card
+                span(data-i18n='statPower') Tong cong suat
+                strong#totalPower 0 kW
+            #map.map-canvas
+            #mapMessage.map-message Dang tai ban do...
+          aside.station-results
+            .results-header
+              div
+                p.eyebrow(data-i18n='nearby') DIEM GAN BAN
+                h2#resultsTitle Danh sach tram
+              span#resultsCount.results-count 0
+            #stationList.station-list
+
+    .modal-backdrop#profileModal(aria-hidden='true')
+      section.profile-modal(role='dialog', aria-modal='true', aria-labelledby='profileModalTitle')
+        button#closeProfileModal.modal-close(type='button', aria-label='Dong') X
+        p.eyebrow Ho so ca nhan
+        h2#profileModalTitle Thong tin tai khoan
+        .profile-form
+          label(for='profileUsername') Tai khoan
+          input#profileUsername(type='text', value='nguoi-dung', readonly)
+          label(for='profileFullName') Ho va ten
+          input#profileFullName(type='text', value='Nguoi dung Tram Sac')
+          label(for='profileEmail') Email
+          input#profileEmail(type='email', value='user@tramsac.local')
+          label(for='profilePhone') So dien thoai
+          input#profilePhone(type='text', value='Chua cap nhat')
+        .modal-actions
+          button#saveProfileBtn.primary-btn(type='button') Luu thay doi
+          button#cancelProfileBtn.outline-btn(type='button') Huy
+
+block scripts
+  script(src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js')
+  script.
+    window.TRAM_SAC_CONFIG = !{JSON.stringify({ locationiqKey: locationiqKey || '' })};
+  script(src='/js/home-map.js')

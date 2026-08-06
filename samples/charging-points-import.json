@@ -1,0 +1,20 @@
+[
+  {
+    "code": "Q1-CP-01",
+    "stationName": "Tram Sac Quan 1",
+    "stationAddress": "123 Le Loi, Quan 1, TP.HCM",
+    "pricingName": "Gia nhanh",
+    "connectorType": "CCS2",
+    "powerKw": 120,
+    "status": "available"
+  },
+  {
+    "code": "TD-CP-01",
+    "stationName": "Tram Sac Thu Duc",
+    "stationAddress": "56 Vo Van Ngan, Thu Duc, TP.HCM",
+    "pricingName": "Gia thuong",
+    "connectorType": "AC_Type2",
+    "powerKw": 30,
+    "status": "available"
+  }
+]

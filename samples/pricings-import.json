@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Gia thuong",
+    "pricePerKwh": 3500,
+    "pricePerMinute": 0
+  },
+  {
+    "name": "Gia nhanh",
+    "pricePerKwh": 4200,
+    "pricePerMinute": 150
+  }
+]

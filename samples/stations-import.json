@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Tram Sac Quan 1",
+    "address": "123 Le Loi, Quan 1, TP.HCM",
+    "location": {
+      "lat": 10.7769,
+      "lng": 106.7009
+    },
+    "status": "active"
+  },
+  {
+    "name": "Tram Sac Thu Duc",
+    "address": "56 Vo Van Ngan, Thu Duc, TP.HCM",
+    "location": {
+      "lat": 10.8498,
+      "lng": 106.7718
+    },
+    "status": "active"
+  }
+]

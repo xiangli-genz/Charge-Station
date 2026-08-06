@@ -1,0 +1,35 @@
+extends ../layouts/main
+
+block content
+  main.auth-shell
+    .topbar
+      a.brand(href='/') Tram Sac Hub
+      .nav-actions
+        a.btn.ghost(href='/') Trang chu
+        a.btn.ghost(href='/register') Dang ky admin
+
+    .auth-grid
+      section.panel.soft
+        p.eyebrow Admin Access
+        h1 Dang nhap vao dashboard quan tri
+        p.lead Su dung tai khoan admin trong MongoDB hoac tai khoan superadmin he thong duoc cau hinh trong file `.env`.
+        ul.helper
+          li Admin dang nhap bang tai khoan da dang ky.
+          li Superadmin dang nhap bang `SUPERADMIN_EMAIL` va `SUPERADMIN_PASSWORD`.
+          li Ca hai tai khoan deu su dung chung dashboard va API admin.
+
+      section.panel
+        h2 Tai khoan quan tri
+        .stack
+          div
+            label.field-label(for='email') Email
+            input#email.text-input(type='email', placeholder='admin@example.com')
+          div
+            label.field-label(for='password') Mat khau
+            input#password.text-input(type='password', placeholder='123456')
+          button#loginSubmitBtn.btn.primary(type='button') Dang nhap vao dashboard
+          #loginStatus.status-box Chua dang nhap.
+        p.helper(style='margin-top: 18px;') Neu la superadmin, hay dung dung email va mat khau trong `.env`.
+
+block scripts
+  script(src='/js/login.js')
