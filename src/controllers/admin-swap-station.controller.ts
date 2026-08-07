@@ -10,7 +10,7 @@ import {
   updateAdminSwapStation,
 } from '../services/admin-swap-station.service';
 
-const swapStationStatuses: SwapStationStatus[] = ['active', 'inactive', 'maintenance'];
+const swapStationStatuses: SwapStationStatus[] = ['active', 'inactive', 'maintenance', 'closed'];
 
 const parsePositiveInteger = (value: unknown, fallback: number): number => {
   const parsed = Number(value);

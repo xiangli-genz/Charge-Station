@@ -28,6 +28,7 @@ interface CreateBookingInput {
   endTime: Date;
   status?: BookingStatus;
   customer?: BookingCustomerInput;
+  createdById?: string;
 }
 
 interface UpdateBookingInput {
@@ -165,7 +166,8 @@ const findChargingPoint = async (chargingPointId: string): Promise<IChargingPoin
 
 const resolveCustomerUser = async (
   userId: string | undefined,
-  customer: BookingCustomerInput | undefined
+  customer: BookingCustomerInput | undefined,
+  createdById?: string
 ): Promise<IUser> => {
   if (userId) {
     const user = await User.findById(userId);
@@ -219,6 +221,10 @@ const resolveCustomerUser = async (
       existingUser.phone = phone;
     }
 
+    if (createdById && !existingUser.createdById) {
+      existingUser.createdById = createdById;
+    }
+
     await existingUser.save();
     return existingUser;
   }
@@ -233,6 +239,7 @@ const resolveCustomerUser = async (
     phone,
     email,
     passwordHash,
+    createdById: createdById || null,
     role: 'customer',
   });
 };
@@ -331,7 +338,7 @@ export const createAdminBooking = async (
 ): Promise<AdminBookingResponse> => {
   ensureValidBookingWindow(payload.startTime, payload.endTime);
   const [customerUser, chargingPoint] = await Promise.all([
-    resolveCustomerUser(payload.userId, payload.customer),
+    resolveCustomerUser(payload.userId, payload.customer, payload.createdById),
     findChargingPoint(payload.chargingPointId),
   ]);
 

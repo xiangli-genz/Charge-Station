@@ -10,7 +10,7 @@ import {
   updateAdminStation,
 } from '../services/admin-station.service';
 
-const stationStatuses: StationStatus[] = ['active', 'inactive', 'maintenance'];
+const stationStatuses: StationStatus[] = ['active', 'inactive', 'maintenance', 'closed'];
 
 const parsePositiveInteger = (value: unknown, fallback: number): number => {
   const parsed = Number(value);
@@ -31,6 +31,47 @@ const parseStationStatus = (value: unknown): StationStatus | undefined => {
 const parseLocationNumber = (value: unknown): number | undefined => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const parseBooleanField = (value: unknown): boolean => {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    return normalized === 'true' || normalized === '1' || normalized === 'on' || normalized === 'yes';
+  }
+
+  return false;
+};
+
+const parseDateField = (value: unknown): Date | null | undefined => {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  const date = new Date(String(value));
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
+const parseAmenitiesField = (value: unknown): string[] | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(/[\n,;]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
 };
 
 const isValidObjectId = (value: string): boolean => mongoose.Types.ObjectId.isValid(value);
@@ -93,11 +134,27 @@ export const createAdminStationHandler = async (
   res: Response
 ): Promise<void> => {
   try {
+    const imei = typeof req.body.imei === 'string' ? req.body.imei.trim() : '';
     const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
     const address = typeof req.body.address === 'string' ? req.body.address.trim() : '';
+    const city = typeof req.body.city === 'string' ? req.body.city.trim() : '';
+    const district = typeof req.body.district === 'string' ? req.body.district.trim() : '';
+    const description = typeof req.body.description === 'string' ? req.body.description.trim() : '';
     const lat = parseLocationNumber(req.body.location?.lat);
     const lng = parseLocationNumber(req.body.location?.lng);
     const status = parseStationStatus(req.body.status);
+    const chargingType = typeof req.body.chargingType === 'string' ? req.body.chargingType.trim() : '';
+    const currentType = typeof req.body.currentType === 'string' ? req.body.currentType.trim() : '';
+    const isActivated = parseBooleanField(req.body.isActivated);
+    const activatedAt = parseDateField(req.body.activatedAt);
+    const warrantyUntil = parseDateField(req.body.warrantyUntil);
+    const simType = typeof req.body.simType === 'string' ? req.body.simType.trim() : '';
+    const simNumber = typeof req.body.simNumber === 'string' ? req.body.simNumber.trim() : '';
+    const billingSimNumber =
+      typeof req.body.billingSimNumber === 'string' ? req.body.billingSimNumber.trim() : '';
+    const supportPhone = typeof req.body.supportPhone === 'string' ? req.body.supportPhone.trim() : '';
+    const open24_7 = parseBooleanField(req.body.open24_7);
+    const amenities = parseAmenitiesField(req.body.amenities);
 
     if (!name || !address || typeof lat !== 'number' || typeof lng !== 'number') {
       res.status(400).json({
@@ -108,10 +165,25 @@ export const createAdminStationHandler = async (
     }
 
     const station = await createAdminStation({
+      imei,
       name,
       address,
+      city,
+      district,
+      description,
       location: { lat, lng },
       status,
+      chargingType,
+      currentType,
+      isActivated,
+      activatedAt,
+      warrantyUntil,
+      simType,
+      simNumber,
+      billingSimNumber,
+      supportPhone,
+      open24_7,
+      amenities,
     });
 
     res.status(201).json({
@@ -142,11 +214,27 @@ export const updateAdminStationHandler = async (
       return;
     }
 
+    const imei = typeof req.body.imei === 'string' ? req.body.imei.trim() : '';
     const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
     const address = typeof req.body.address === 'string' ? req.body.address.trim() : '';
+    const city = typeof req.body.city === 'string' ? req.body.city.trim() : '';
+    const district = typeof req.body.district === 'string' ? req.body.district.trim() : '';
+    const description = typeof req.body.description === 'string' ? req.body.description.trim() : '';
     const lat = parseLocationNumber(req.body.location?.lat);
     const lng = parseLocationNumber(req.body.location?.lng);
     const status = parseStationStatus(req.body.status);
+    const chargingType = typeof req.body.chargingType === 'string' ? req.body.chargingType.trim() : '';
+    const currentType = typeof req.body.currentType === 'string' ? req.body.currentType.trim() : '';
+    const isActivated = parseBooleanField(req.body.isActivated);
+    const activatedAt = parseDateField(req.body.activatedAt);
+    const warrantyUntil = parseDateField(req.body.warrantyUntil);
+    const simType = typeof req.body.simType === 'string' ? req.body.simType.trim() : '';
+    const simNumber = typeof req.body.simNumber === 'string' ? req.body.simNumber.trim() : '';
+    const billingSimNumber =
+      typeof req.body.billingSimNumber === 'string' ? req.body.billingSimNumber.trim() : '';
+    const supportPhone = typeof req.body.supportPhone === 'string' ? req.body.supportPhone.trim() : '';
+    const open24_7 = parseBooleanField(req.body.open24_7);
+    const amenities = parseAmenitiesField(req.body.amenities);
 
     if (!name || !address || typeof lat !== 'number' || typeof lng !== 'number') {
       res.status(400).json({
@@ -157,10 +245,25 @@ export const updateAdminStationHandler = async (
     }
 
     const station = await updateAdminStation(id, {
+      imei,
       name,
       address,
+      city,
+      district,
+      description,
       location: { lat, lng },
       status,
+      chargingType,
+      currentType,
+      isActivated,
+      activatedAt,
+      warrantyUntil,
+      simType,
+      simNumber,
+      billingSimNumber,
+      supportPhone,
+      open24_7,
+      amenities,
     });
 
     res.status(200).json({

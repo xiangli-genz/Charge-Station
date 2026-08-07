@@ -9,8 +9,10 @@ import adminBookingRoutes from './routes/admin-booking.routes';
 import adminPricingRoutes from './routes/admin-pricing.routes';
 import adminStationRoutes from './routes/admin-station.routes';
 import adminSwapStationRoutes from './routes/admin-swap-station.routes';
+import adminUserTreeRoutes from './routes/admin-user-tree.routes';
 import connectDB from './config/db';
 import authRoutes from './routes/auth.routes';
+import permissionGroupRoutes from './routes/permission-group.routes';
 import stationRoutes from './routes/station.routes';
 import superadminRoutes from './routes/superadmin.routes';
 import swapStationRoutes from './routes/swap-station.routes';
@@ -52,10 +54,7 @@ app.get('/register', (req: Request, res: Response) => {
 });
 
 app.get('/dashboard', (req: Request, res: Response) => {
-  res.render('pages/dashboard', {
-    pageTitle: 'Dashboard admin',
-    stylesheet: '/css/site.css',
-  });
+  res.redirect('/');
 });
 
 app.get('/admin-tools', (req: Request, res: Response) => {
@@ -72,7 +71,19 @@ app.get('/admin-import-tools', (req: Request, res: Response) => {
   });
 });
 
+app.get('/admin-users', (req: Request, res: Response) => {
+  res.render('pages/admin-users', {
+    pageTitle: 'Cay nguoi dung quan tri',
+    stylesheet: '/css/site.css',
+  });
+});
+
 app.get('/admin-editor', (req: Request, res: Response) => {
+  if (req.query.panel === 'stations') {
+    res.redirect('/');
+    return;
+  }
+
   res.render('pages/admin-editor', {
     pageTitle: 'Admin Editor',
     stylesheet: '/css/admin-import.css',
@@ -85,6 +96,8 @@ app.get('/api/health', (req: Request, res: Response) => {
 
 app.use('/api/admin/auth', authRoutes);
 app.use('/api/admin/bookings', adminBookingRoutes);
+app.use('/api/admin/users', adminUserTreeRoutes);
+app.use('/api/admin/permission-groups', permissionGroupRoutes);
 app.use('/api/superadmin', superadminRoutes);
 app.use('/api/admin/pricings', adminPricingRoutes);
 app.use('/api/admin/stations', adminStationRoutes);

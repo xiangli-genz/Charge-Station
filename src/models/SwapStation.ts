@@ -1,6 +1,6 @@
 import { Document, Schema, Types, model } from 'mongoose';
 
-export type SwapStationStatus = 'active' | 'inactive' | 'maintenance';
+export type SwapStationStatus = 'active' | 'inactive' | 'maintenance' | 'closed';
 
 export interface ISwapStation extends Document {
   _id: Types.ObjectId;
@@ -36,7 +36,7 @@ const swapStationSchema = new Schema<ISwapStation>(
     availableBatterySlots: { type: Number, default: 0, min: 0 },
     status: {
       type: String,
-      enum: ['active', 'inactive', 'maintenance'],
+      enum: ['active', 'inactive', 'maintenance', 'closed'],
       default: 'active',
     },
   },

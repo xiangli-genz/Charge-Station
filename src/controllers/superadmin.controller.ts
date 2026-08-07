@@ -102,10 +102,18 @@ export const listSuperAdminStaffHandler = async (
 };
 
 export const createStaffHandler = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
+    if (!req.user?.id) {
+      res.status(401).json({
+        success: false,
+        message: 'Chua xac thuc nguoi dung',
+      });
+      return;
+    }
+
     const fullName = normalizeText(req.body.fullName);
     const phone = normalizeText(req.body.phone);
     const email = normalizeText(req.body.email).toLowerCase();
@@ -142,6 +150,7 @@ export const createStaffHandler = async (
       email,
       password,
       role,
+      createdById: req.user.id,
     });
 
     res.status(201).json({

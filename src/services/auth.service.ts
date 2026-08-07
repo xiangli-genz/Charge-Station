@@ -11,6 +11,7 @@ interface RegisterStaffInput {
   password: string;
   registerSecret: string;
   role: StaffRole;
+  createdById?: string | null;
 }
 
 interface LoginStaffInput {
@@ -26,6 +27,7 @@ interface StaffUserResponse {
   email: string;
   role: StaffRole;
   walletBalance: number;
+  createdById: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,6 +43,7 @@ export interface CreateStaffInput {
   email: string;
   password: string;
   role: StaffRole;
+  createdById?: string | null;
 }
 
 const SALT_ROUNDS = 10;
@@ -86,13 +89,18 @@ const getRegisterSecret = (): string => {
   return secret;
 };
 
+const toDisplayStaffRole = (_role: StaffRole): StaffRole => {
+  return 'admin';
+};
+
 const toStaffUserResponse = (user: IUser): StaffUserResponse => ({
   id: user._id.toString(),
   fullName: user.fullName,
   phone: user.phone,
   email: user.email,
-  role: user.role as StaffRole,
+  role: toDisplayStaffRole(user.role as StaffRole),
   walletBalance: user.walletBalance,
+  createdById: user.createdById ?? null,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });
@@ -108,11 +116,12 @@ const toConfiguredSuperAdminResponse = (): StaffUserResponse => {
 
   return {
     id: ENV_SUPERADMIN_ID,
-    fullName: 'Superadmin',
+    fullName: 'Quan tri he thong',
     phone: 'system',
     email: configuredSuperAdmin.email,
-    role: 'superadmin',
+    role: 'admin',
     walletBalance: 0,
+    createdById: null,
     createdAt: now,
     updatedAt: now,
   };
@@ -168,6 +177,7 @@ const createStaffUser = async (input: RegisterStaffInput): Promise<StaffAuthResp
     phone: input.phone,
     email: input.email,
     passwordHash,
+    createdById: input.createdById ?? null,
     role: input.role,
   });
 
@@ -231,7 +241,7 @@ export const loginAdmin = async (
     return loginConfiguredSuperAdmin(input);
   }
 
-  return loginStaff({ ...input, allowedRoles: ['admin'] });
+  return loginStaff({ ...input, allowedRoles: ['admin', 'superadmin'] });
 };
 
 export const loginSuperAdmin = async (
@@ -245,7 +255,7 @@ export const getAdminProfile = async (userId: string): Promise<StaffUserResponse
     return toConfiguredSuperAdminResponse();
   }
 
-  const user = validateStaffUser(await User.findById(userId), ['admin']);
+  const user = validateStaffUser(await User.findById(userId), ['admin', 'superadmin']);
   return toStaffUserResponse(user);
 };
 
@@ -262,12 +272,7 @@ export const listStaffUsers = async (): Promise<StaffUserResponse[]> => {
   const users = await User.find({ role: { $in: ['admin', 'superadmin'] as UserRole[] } }).sort({
     createdAt: -1,
   });
-
-  const configuredSuperAdmin = getConfiguredSuperAdmin()
-    ? [toConfiguredSuperAdminResponse()]
-    : [];
-
-  return [...configuredSuperAdmin, ...users.map(toStaffUserResponse)];
+  return users.map(toStaffUserResponse);
 };
 
 export const createStaffBySuperAdmin = async (
@@ -298,6 +303,7 @@ export const createStaffBySuperAdmin = async (
     phone: input.phone,
     email: input.email,
     passwordHash,
+    createdById: input.createdById ?? null,
     role: input.role,
   });
 

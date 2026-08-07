@@ -83,10 +83,10 @@ export const requireSuperAdmin = (
     return;
   }
 
-  if (req.user.role !== 'superadmin') {
+  if (req.user.role !== 'superadmin' && req.user.role !== 'admin') {
     res.status(403).json({
       success: false,
-      message: 'Chi superadmin moi co quyen truy cap',
+      message: 'Chi tai khoan quan tri moi co quyen truy cap',
     });
     return;
   }

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { BookingStatus } from '../models/Booking';
+import { AuthRequest } from '../types/express';
 import {
   createAdminBooking,
   deleteAdminBooking,
@@ -119,7 +120,7 @@ export const getAdminBookingByIdHandler = async (
 };
 
 export const createAdminBookingHandler = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
@@ -157,6 +158,7 @@ export const createAdminBookingHandler = async (
       endTime,
       status,
       customer,
+      createdById: req.user?.id,
     });
 
     res.status(201).json({

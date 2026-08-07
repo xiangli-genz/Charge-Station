@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { searchSwapStations, SwapStationSearchParams } from '../services/swap-station.service';
 import { SwapStationStatus } from '../models/SwapStation';
 
-const swapStationStatuses: SwapStationStatus[] = ['active', 'inactive', 'maintenance'];
+const swapStationStatuses: SwapStationStatus[] = ['active', 'inactive', 'maintenance', 'closed'];
 
 const parseNumber = (value: unknown): number | undefined => {
   if (typeof value !== 'string' || value.trim() === '') {

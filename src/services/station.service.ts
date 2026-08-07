@@ -4,6 +4,7 @@ import ChargingPoint, {
   ConnectorType,
   IChargingPoint,
 } from '../models/ChargingPoint';
+import Pricing, { IPricing } from '../models/Pricing';
 import Station, { StationStatus } from '../models/Station';
 
 export interface StationSearchParams {
@@ -33,17 +34,27 @@ interface StationChargingPointItem {
   connectorType: ConnectorType;
   powerKw: number;
   status: ChargingPointStatus;
+  pricing?: {
+    id: string;
+    name: string;
+    pricePerKwh: number;
+    pricePerMinute: number;
+  };
 }
 
 export interface StationSearchItem {
   _id: string;
+  imei?: string;
   name: string;
   address: string;
+  city?: string;
+  district?: string;
   location: {
     lat: number;
     lng: number;
   };
   status: StationStatus;
+  open24_7?: boolean;
   totalChargingPoints: number;
   availableChargingPoints: number;
   matchingChargingPoints: StationChargingPointItem[];
@@ -53,13 +64,17 @@ export interface StationSearchItem {
 
 interface StationSearchAggregationRow {
   _id: IChargingPoint['_id'];
+  imei?: string;
   name: string;
   address: string;
+  city?: string;
+  district?: string;
   location: {
     lat: number;
     lng: number;
   };
   status: StationStatus;
+  open24_7?: boolean;
   totalChargingPoints: number;
   availableChargingPoints: number;
   matchingChargingPoints: Array<{
@@ -68,6 +83,12 @@ interface StationSearchAggregationRow {
     connectorType: ConnectorType;
     powerKw: number;
     status: ChargingPointStatus;
+    pricing?: {
+      _id?: IPricing['_id'];
+      name?: string;
+      pricePerKwh?: number;
+      pricePerMinute?: number;
+    };
   }>;
   createdAt: Date;
   updatedAt: Date;
@@ -117,11 +138,11 @@ const buildChargingPointFilter = (
 
 const buildStationFilter = (params: StationSearchParams): {
   status?: StationStatus;
-  $or?: Array<{ name?: RegExp; address?: RegExp }>;
+  $or?: Array<{ imei?: RegExp; name?: RegExp; address?: RegExp }>;
 } => {
   const filter: {
     status?: StationStatus;
-    $or?: Array<{ name?: RegExp; address?: RegExp }>;
+    $or?: Array<{ imei?: RegExp; name?: RegExp; address?: RegExp }>;
   } = {};
 
   if (params.status) {
@@ -130,7 +151,7 @@ const buildStationFilter = (params: StationSearchParams): {
 
   if (params.keyword) {
     const keywordRegex = new RegExp(params.keyword, 'i');
-    filter.$or = [{ name: keywordRegex }, { address: keywordRegex }];
+    filter.$or = [{ imei: keywordRegex }, { name: keywordRegex }, { address: keywordRegex }];
   }
 
   return filter;
@@ -170,11 +191,31 @@ export const searchStations = async (
           },
           ...matchingPointsPipeline,
           {
+            $lookup: {
+              from: Pricing.collection.name,
+              localField: 'pricing',
+              foreignField: '_id',
+              as: 'pricingInfo',
+            },
+          },
+          {
+            $unwind: {
+              path: '$pricingInfo',
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
             $project: {
               code: 1,
               connectorType: 1,
               powerKw: 1,
               status: 1,
+              pricing: {
+                _id: '$pricingInfo._id',
+                name: '$pricingInfo.name',
+                pricePerKwh: '$pricingInfo.pricePerKwh',
+                pricePerMinute: '$pricingInfo.pricePerMinute',
+              },
             },
           },
         ],
@@ -208,9 +249,13 @@ export const searchStations = async (
   pipeline.push({
     $project: {
       name: 1,
+      imei: 1,
       address: 1,
+      city: 1,
+      district: 1,
       location: 1,
       status: 1,
+      open24_7: 1,
       totalChargingPoints: 1,
       availableChargingPoints: 1,
       matchingChargingPoints: 1,
@@ -237,9 +282,21 @@ export const searchStations = async (
       ...item,
       _id: item._id.toString(),
       matchingChargingPoints: item.matchingChargingPoints.map((point) => ({
-        ...point,
         _id: point._id.toString(),
+        code: point.code,
+        connectorType: point.connectorType,
+        powerKw: point.powerKw,
+        status: point.status,
+        pricing: point.pricing?._id
+          ? {
+              id: point.pricing._id.toString(),
+              name: point.pricing.name || 'Bang gia mac dinh',
+              pricePerKwh: point.pricing.pricePerKwh || 0,
+              pricePerMinute: point.pricing.pricePerMinute || 0,
+            }
+          : undefined,
       })),
+      imei: item.imei || '',
     })),
     pagination: {
       page: params.page,

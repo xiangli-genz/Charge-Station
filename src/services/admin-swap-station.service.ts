@@ -81,7 +81,9 @@ const escapeRegex = (value: string): string =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const parseSwapStationStatus = (value: unknown): SwapStationStatus => {
-  return value === 'inactive' || value === 'maintenance' ? value : 'active';
+  return value === 'inactive' || value === 'maintenance' || value === 'closed'
+    ? value
+    : 'active';
 };
 
 const normalizeSwapStationRow = (

@@ -3,7 +3,7 @@ import { ConnectorType } from '../models/ChargingPoint';
 import { StationStatus } from '../models/Station';
 import { searchStations, StationSearchParams } from '../services/station.service';
 
-const stationStatuses: StationStatus[] = ['active', 'inactive', 'maintenance'];
+const stationStatuses: StationStatus[] = ['active', 'inactive', 'maintenance', 'closed'];
 const connectorTypes: ConnectorType[] = ['AC_Type2', 'CCS2', 'CHAdeMO', 'GB_T'];
 
 const parseNumber = (value: unknown): number | undefined => {
