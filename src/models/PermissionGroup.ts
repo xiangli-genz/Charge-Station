@@ -7,6 +7,7 @@ export interface IPermissionGroup extends Document {
   description: string;
   permissions: string[];
   status: 'active' | 'inactive';
+  parentGroupId: Types.ObjectId | null;
   createdById: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -27,6 +28,11 @@ const permissionGroupSchema = new Schema<IPermissionGroup>(
     permissions: {
       type: [String],
       default: [],
+    },
+    parentGroupId: {
+      type: Schema.Types.ObjectId,
+      ref: 'PermissionGroup',
+      default: null,
     },
     status: {
       type: String,

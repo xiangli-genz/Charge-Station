@@ -9,7 +9,14 @@ export interface IChargingPoint extends Document {
   pricing: Types.ObjectId;
   code: string;
   connectorType: ConnectorType;
+  outputCurrentType: string;
+  inputSupply: string;
+  maxOutputCurrentA?: number | null;
+  description: string;
   powerKw: number;
+  maxOutputVoltage: string;
+  multiPortEnabled: boolean;
+  positionLabel: string;
   status: ChargingPointStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -25,7 +32,14 @@ const chargingPointSchema = new Schema<IChargingPoint>(
       enum: ['AC_Type2', 'CCS2', 'CHAdeMO', 'GB_T'],
       required: true,
     },
+    outputCurrentType: { type: String, trim: true, default: '' },
+    inputSupply: { type: String, trim: true, default: '' },
+    maxOutputCurrentA: { type: Number, default: null },
+    description: { type: String, trim: true, default: '' },
     powerKw: { type: Number, required: true },
+    maxOutputVoltage: { type: String, trim: true, default: '' },
+    multiPortEnabled: { type: Boolean, default: false },
+    positionLabel: { type: String, trim: true, default: '' },
     status: {
       type: String,
       enum: ['available', 'occupied', 'reserved', 'maintenance'],

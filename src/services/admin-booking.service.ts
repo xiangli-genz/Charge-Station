@@ -265,6 +265,22 @@ const ensureNoBookingConflict = async (params: {
   }
 };
 
+const ensureBookingCanBeCancelled = (booking: IBooking, now = new Date()): void => {
+  if (booking.status === 'cancelled') {
+    throw new Error('Booking nay da duoc huy truoc do');
+  }
+
+  if (booking.status === 'completed') {
+    throw new Error('Booking da hoan thanh, khong the huy');
+  }
+
+  const cancellationDeadline = new Date(booking.startTime.getTime() - 30 * 60 * 1000);
+
+  if (now >= cancellationDeadline) {
+    throw new Error('Chi co the huy booking truoc gio bat dau it nhat 30 phut');
+  }
+};
+
 export const listAdminBookings = async (
   params: BookingListParams
 ): Promise<AdminBookingListResponse> => {
@@ -380,6 +396,10 @@ export const updateAdminBooking = async (
   const startTime = payload.startTime || booking.startTime;
   const endTime = payload.endTime || booking.endTime;
   const status = payload.status || booking.status;
+
+  if (status === 'cancelled' && booking.status !== 'cancelled') {
+    ensureBookingCanBeCancelled(booking);
+  }
 
   ensureValidBookingWindow(startTime, endTime);
   await findChargingPoint(chargingPointId);

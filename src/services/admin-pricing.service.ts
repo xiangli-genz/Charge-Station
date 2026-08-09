@@ -16,6 +16,20 @@ interface PricingPayload {
   name: string;
   pricePerKwh: number;
   pricePerMinute: number;
+  hourlyPrice: number;
+  parkingFee: number;
+  vat: number;
+  description?: string;
+  timeRates: Array<{
+    minutes: number;
+    price: number;
+  }>;
+  timeFrames: Array<{
+    name: string;
+    startTime: string;
+    endTime: string;
+    price: number;
+  }>;
 }
 
 type PricingImportPayload = {
@@ -30,6 +44,20 @@ export interface AdminPricingResponse {
   name: string;
   pricePerKwh: number;
   pricePerMinute: number;
+  hourlyPrice: number;
+  parkingFee: number;
+  vat: number;
+  description: string;
+  timeRates: Array<{
+    minutes: number;
+    price: number;
+  }>;
+  timeFrames: Array<{
+    name: string;
+    startTime: string;
+    endTime: string;
+    price: number;
+  }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,6 +77,24 @@ const toPricingResponse = (pricing: IPricing): AdminPricingResponse => ({
   name: pricing.name,
   pricePerKwh: pricing.pricePerKwh,
   pricePerMinute: pricing.pricePerMinute,
+  hourlyPrice: pricing.hourlyPrice || 0,
+  parkingFee: pricing.parkingFee || 0,
+  vat: pricing.vat || 0,
+  description: pricing.description || '',
+  timeRates: Array.isArray(pricing.timeRates)
+    ? pricing.timeRates.map((item) => ({
+        minutes: Number(item.minutes || 0),
+        price: Number(item.price || 0),
+      }))
+    : [],
+  timeFrames: Array.isArray(pricing.timeFrames)
+    ? pricing.timeFrames.map((item) => ({
+        name: item.name || '',
+        startTime: item.startTime || '',
+        endTime: item.endTime || '',
+        price: Number(item.price || 0),
+      }))
+    : [],
   createdAt: pricing.createdAt,
   updatedAt: pricing.updatedAt,
 });
@@ -62,8 +108,20 @@ const normalizePricingRow = (
   const name = parseStringField(row.name);
   const pricePerKwh = parseNumberField(row.pricePerKwh);
   const pricePerMinute = parseNumberField(row.pricePerMinute) ?? 0;
+  const hourlyPrice = parseNumberField(row.hourlyPrice) ?? 0;
+  const parkingFee = parseNumberField(row.parkingFee) ?? 0;
+  const vat = parseNumberField(row.vat) ?? 0;
+  const description = parseStringField(row.description);
 
-  if (!name || typeof pricePerKwh !== 'number' || pricePerKwh < 0 || pricePerMinute < 0) {
+  if (
+    !name ||
+    typeof pricePerKwh !== 'number' ||
+    pricePerKwh < 0 ||
+    pricePerMinute < 0 ||
+    hourlyPrice < 0 ||
+    parkingFee < 0 ||
+    vat < 0
+  ) {
     return null;
   }
 
@@ -71,6 +129,12 @@ const normalizePricingRow = (
     name,
     pricePerKwh,
     pricePerMinute,
+    hourlyPrice,
+    parkingFee,
+    vat,
+    description,
+    timeRates: [],
+    timeFrames: [],
   };
 };
 
@@ -127,7 +191,12 @@ export const createAdminPricing = async (
     throw new Error('Ten bang gia da ton tai');
   }
 
-  const pricing = await Pricing.create(payload);
+  const pricing = await Pricing.create({
+    ...payload,
+    description: payload.description || '',
+    timeRates: Array.isArray(payload.timeRates) ? payload.timeRates : [],
+    timeFrames: Array.isArray(payload.timeFrames) ? payload.timeFrames : [],
+  });
   return toPricingResponse(pricing);
 };
 
@@ -144,10 +213,19 @@ export const updateAdminPricing = async (
     throw new Error('Ten bang gia da ton tai');
   }
 
-  const pricing = await Pricing.findByIdAndUpdate(pricingId, payload, {
-    new: true,
-    runValidators: true,
-  });
+  const pricing = await Pricing.findByIdAndUpdate(
+    pricingId,
+    {
+      ...payload,
+      description: payload.description || '',
+      timeRates: Array.isArray(payload.timeRates) ? payload.timeRates : [],
+      timeFrames: Array.isArray(payload.timeFrames) ? payload.timeFrames : [],
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
   if (!pricing) {
     throw new Error('Bang gia khong ton tai');
@@ -199,6 +277,12 @@ export const importAdminPricings = async (
       existingPricing.name = normalizedRow.name;
       existingPricing.pricePerKwh = normalizedRow.pricePerKwh;
       existingPricing.pricePerMinute = normalizedRow.pricePerMinute;
+      existingPricing.hourlyPrice = normalizedRow.hourlyPrice;
+      existingPricing.parkingFee = normalizedRow.parkingFee;
+      existingPricing.vat = normalizedRow.vat;
+      existingPricing.description = normalizedRow.description || '';
+      existingPricing.timeRates = normalizedRow.timeRates;
+      existingPricing.timeFrames = normalizedRow.timeFrames;
       await existingPricing.save();
 
       result.updated += 1;

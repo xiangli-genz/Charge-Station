@@ -25,7 +25,14 @@ interface ChargingPointPayload {
   pricingId: string;
   code: string;
   connectorType: ConnectorType;
+  outputCurrentType?: string;
+  inputSupply?: string;
+  maxOutputCurrentA?: number | null;
+  description?: string;
   powerKw: number;
+  maxOutputVoltage?: string;
+  multiPortEnabled?: boolean;
+  positionLabel?: string;
   status?: ChargingPointStatus;
 }
 
@@ -50,7 +57,14 @@ export interface AdminChargingPointResponse {
   };
   code: string;
   connectorType: ConnectorType;
+  outputCurrentType: string;
+  inputSupply: string;
+  maxOutputCurrentA: number | null;
+  description: string;
   powerKw: number;
+  maxOutputVoltage: string;
+  multiPortEnabled: boolean;
+  positionLabel: string;
   status: ChargingPointStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -95,7 +109,15 @@ const toChargingPointResponse = (
   },
   code: chargingPoint.code,
   connectorType: chargingPoint.connectorType,
+  outputCurrentType: chargingPoint.outputCurrentType || '',
+  inputSupply: chargingPoint.inputSupply || '',
+  maxOutputCurrentA:
+    typeof chargingPoint.maxOutputCurrentA === 'number' ? chargingPoint.maxOutputCurrentA : null,
+  description: chargingPoint.description || '',
   powerKw: chargingPoint.powerKw,
+  maxOutputVoltage: chargingPoint.maxOutputVoltage || '',
+  multiPortEnabled: Boolean(chargingPoint.multiPortEnabled),
+  positionLabel: chargingPoint.positionLabel || '',
   status: chargingPoint.status,
   createdAt: chargingPoint.createdAt,
   updatedAt: chargingPoint.updatedAt,
@@ -123,6 +145,19 @@ const parseChargingPointStatus = (value: unknown): ChargingPointStatus => {
     chargingPointStatuses.includes(value as ChargingPointStatus)
     ? (value as ChargingPointStatus)
     : 'available';
+};
+
+const parseBooleanField = (value: unknown): boolean => {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    return normalized === 'true' || normalized === '1' || normalized === 'on' || normalized === 'yes';
+  }
+
+  return false;
 };
 
 const resolveStationId = async (row: Record<string, unknown>): Promise<string | null> => {
@@ -183,7 +218,14 @@ const normalizeChargingPointRow = async (
   const pricingId = await resolvePricingId(row);
   const code = parseStringField(row.code);
   const connectorType = parseConnectorType(row.connectorType);
+  const outputCurrentType = parseStringField(row.outputCurrentType || row.currentType);
+  const inputSupply = parseStringField(row.inputSupply);
+  const maxOutputCurrentA = parseNumberField(row.maxOutputCurrentA);
+  const description = parseStringField(row.description);
   const powerKw = parseNumberField(row.powerKw);
+  const maxOutputVoltage = parseStringField(row.maxOutputVoltage);
+  const multiPortEnabled = parseBooleanField(row.multiPortEnabled || row.createMultiple);
+  const positionLabel = parseStringField(row.positionLabel || row.position);
   const status = parseChargingPointStatus(row.status);
 
   if (
@@ -202,7 +244,15 @@ const normalizeChargingPointRow = async (
     pricingId,
     code,
     connectorType,
+    outputCurrentType,
+    inputSupply,
+    maxOutputCurrentA:
+      typeof maxOutputCurrentA === 'number' && maxOutputCurrentA > 0 ? maxOutputCurrentA : null,
+    description,
     powerKw,
+    maxOutputVoltage,
+    multiPortEnabled,
+    positionLabel,
     status,
   };
 };
@@ -307,7 +357,17 @@ export const createAdminChargingPoint = async (
     pricing: payload.pricingId,
     code: payload.code,
     connectorType: payload.connectorType,
+    outputCurrentType: payload.outputCurrentType || '',
+    inputSupply: payload.inputSupply || '',
+    maxOutputCurrentA:
+      typeof payload.maxOutputCurrentA === 'number' && payload.maxOutputCurrentA > 0
+        ? payload.maxOutputCurrentA
+        : null,
+    description: payload.description || '',
     powerKw: payload.powerKw,
+    maxOutputVoltage: payload.maxOutputVoltage || '',
+    multiPortEnabled: Boolean(payload.multiPortEnabled),
+    positionLabel: payload.positionLabel || '',
     status: payload.status || 'available',
   });
 
@@ -337,7 +397,17 @@ export const updateAdminChargingPoint = async (
       pricing: payload.pricingId,
       code: payload.code,
       connectorType: payload.connectorType,
+      outputCurrentType: payload.outputCurrentType || '',
+      inputSupply: payload.inputSupply || '',
+      maxOutputCurrentA:
+        typeof payload.maxOutputCurrentA === 'number' && payload.maxOutputCurrentA > 0
+          ? payload.maxOutputCurrentA
+          : null,
+      description: payload.description || '',
       powerKw: payload.powerKw,
+      maxOutputVoltage: payload.maxOutputVoltage || '',
+      multiPortEnabled: Boolean(payload.multiPortEnabled),
+      positionLabel: payload.positionLabel || '',
       status: payload.status || 'available',
     },
     { new: true, runValidators: true }
@@ -395,7 +465,14 @@ export const importAdminChargingPoints = async (
       existingChargingPoint.pricing = normalizedRow.pricingId as unknown as IChargingPoint['pricing'];
       existingChargingPoint.code = normalizedRow.code;
       existingChargingPoint.connectorType = normalizedRow.connectorType;
+      existingChargingPoint.outputCurrentType = normalizedRow.outputCurrentType || '';
+      existingChargingPoint.inputSupply = normalizedRow.inputSupply || '';
+      existingChargingPoint.maxOutputCurrentA = normalizedRow.maxOutputCurrentA ?? null;
+      existingChargingPoint.description = normalizedRow.description || '';
       existingChargingPoint.powerKw = normalizedRow.powerKw;
+      existingChargingPoint.maxOutputVoltage = normalizedRow.maxOutputVoltage || '';
+      existingChargingPoint.multiPortEnabled = Boolean(normalizedRow.multiPortEnabled);
+      existingChargingPoint.positionLabel = normalizedRow.positionLabel || '';
       existingChargingPoint.status = normalizedRow.status || 'available';
       await existingChargingPoint.save();
 
@@ -410,7 +487,14 @@ export const importAdminChargingPoints = async (
       pricing: normalizedRow.pricingId,
       code: normalizedRow.code,
       connectorType: normalizedRow.connectorType,
+      outputCurrentType: normalizedRow.outputCurrentType || '',
+      inputSupply: normalizedRow.inputSupply || '',
+      maxOutputCurrentA: normalizedRow.maxOutputCurrentA ?? null,
+      description: normalizedRow.description || '',
       powerKw: normalizedRow.powerKw,
+      maxOutputVoltage: normalizedRow.maxOutputVoltage || '',
+      multiPortEnabled: Boolean(normalizedRow.multiPortEnabled),
+      positionLabel: normalizedRow.positionLabel || '',
       status: normalizedRow.status || 'available',
     });
 

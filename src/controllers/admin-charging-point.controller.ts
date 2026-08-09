@@ -36,6 +36,24 @@ const parsePower = (value: unknown): number | undefined => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 };
 
+const parseOptionalNumber = (value: unknown): number | null => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+};
+
+const parseBooleanField = (value: unknown): boolean => {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    return normalized === 'true' || normalized === '1' || normalized === 'on' || normalized === 'yes';
+  }
+
+  return false;
+};
+
 const parseStatus = (value: unknown): ChargingPointStatus | undefined => {
   return typeof value === 'string' && chargingPointStatuses.includes(value as ChargingPointStatus)
     ? (value as ChargingPointStatus)
@@ -124,7 +142,19 @@ export const createAdminChargingPointHandler = async (
       typeof req.body.pricingId === 'string' ? req.body.pricingId.trim() : '';
     const code = typeof req.body.code === 'string' ? req.body.code.trim() : '';
     const connectorType = parseConnectorType(req.body.connectorType);
+    const outputCurrentType =
+      typeof req.body.outputCurrentType === 'string' ? req.body.outputCurrentType.trim() : '';
+    const inputSupply =
+      typeof req.body.inputSupply === 'string' ? req.body.inputSupply.trim() : '';
+    const maxOutputCurrentA = parseOptionalNumber(req.body.maxOutputCurrentA);
+    const description =
+      typeof req.body.description === 'string' ? req.body.description.trim() : '';
     const powerKw = parsePower(req.body.powerKw);
+    const maxOutputVoltage =
+      typeof req.body.maxOutputVoltage === 'string' ? req.body.maxOutputVoltage.trim() : '';
+    const multiPortEnabled = parseBooleanField(req.body.multiPortEnabled);
+    const positionLabel =
+      typeof req.body.positionLabel === 'string' ? req.body.positionLabel.trim() : '';
     const status = parseStatus(req.body.status);
 
     if (
@@ -146,7 +176,14 @@ export const createAdminChargingPointHandler = async (
       pricingId,
       code,
       connectorType,
+      outputCurrentType,
+      inputSupply,
+      maxOutputCurrentA,
+      description,
       powerKw,
+      maxOutputVoltage,
+      multiPortEnabled,
+      positionLabel,
       status,
     });
 
@@ -184,7 +221,19 @@ export const updateAdminChargingPointHandler = async (
       typeof req.body.pricingId === 'string' ? req.body.pricingId.trim() : '';
     const code = typeof req.body.code === 'string' ? req.body.code.trim() : '';
     const connectorType = parseConnectorType(req.body.connectorType);
+    const outputCurrentType =
+      typeof req.body.outputCurrentType === 'string' ? req.body.outputCurrentType.trim() : '';
+    const inputSupply =
+      typeof req.body.inputSupply === 'string' ? req.body.inputSupply.trim() : '';
+    const maxOutputCurrentA = parseOptionalNumber(req.body.maxOutputCurrentA);
+    const description =
+      typeof req.body.description === 'string' ? req.body.description.trim() : '';
     const powerKw = parsePower(req.body.powerKw);
+    const maxOutputVoltage =
+      typeof req.body.maxOutputVoltage === 'string' ? req.body.maxOutputVoltage.trim() : '';
+    const multiPortEnabled = parseBooleanField(req.body.multiPortEnabled);
+    const positionLabel =
+      typeof req.body.positionLabel === 'string' ? req.body.positionLabel.trim() : '';
     const status = parseStatus(req.body.status);
 
     if (
@@ -206,7 +255,14 @@ export const updateAdminChargingPointHandler = async (
       pricingId,
       code,
       connectorType,
+      outputCurrentType,
+      inputSupply,
+      maxOutputCurrentA,
+      description,
       powerKw,
+      maxOutputVoltage,
+      multiPortEnabled,
+      positionLabel,
       status,
     });
 

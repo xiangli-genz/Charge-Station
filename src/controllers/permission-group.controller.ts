@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import {
   createPermissionGroup,
   deletePermissionGroup,
-  getPermissionCatalog,
+  getPermissionCatalogItems,
   listPermissionGroups,
   updatePermissionGroup,
 } from '../services/permission-group.service';
@@ -48,6 +48,16 @@ const normalizeStatus = (value: unknown): 'active' | 'inactive' => {
   return value === 'inactive' ? 'inactive' : 'active';
 };
 
+const normalizeParentGroupId = (value: unknown): string | null => {
+  const normalized = normalizeText(value);
+
+  if (!normalized || normalized === '__root__') {
+    return null;
+  }
+
+  return normalized;
+};
+
 export const getPermissionCatalogHandler = async (
   req: Request,
   res: Response
@@ -55,7 +65,7 @@ export const getPermissionCatalogHandler = async (
   try {
     res.status(200).json({
       success: true,
-      items: getPermissionCatalog(),
+      items: await getPermissionCatalogItems(),
     });
   } catch (error) {
     res.status(500).json({
@@ -102,11 +112,12 @@ export const createPermissionGroupHandler = async (
     const description = normalizeText(req.body.description);
     const permissions = normalizePermissions(req.body.permissions);
     const status = normalizeStatus(req.body.status);
+    const parentGroupId = normalizeParentGroupId(req.body.parentGroupId);
 
     if (!name || !code) {
       res.status(400).json({
         success: false,
-        message: 'Thong tin nhom quyen khong hop le',
+        message: 'Thong tin vai tro khong hop le',
       });
       return;
     }
@@ -116,13 +127,14 @@ export const createPermissionGroupHandler = async (
       code,
       description,
       permissions,
+      parentGroupId,
       status,
       createdById: req.user.id,
     });
 
     res.status(201).json({
       success: true,
-      message: 'Tao nhom quyen thanh cong',
+      message: 'Tao vai tro thanh cong',
       item,
     });
   } catch (error) {
@@ -153,11 +165,12 @@ export const updatePermissionGroupHandler = async (
     const description = normalizeText(req.body.description);
     const permissions = normalizePermissions(req.body.permissions);
     const status = normalizeStatus(req.body.status);
+    const parentGroupId = normalizeParentGroupId(req.body.parentGroupId);
 
     if (!name || !code) {
       res.status(400).json({
         success: false,
-        message: 'Thong tin nhom quyen khong hop le',
+        message: 'Thong tin vai tro khong hop le',
       });
       return;
     }
@@ -167,12 +180,13 @@ export const updatePermissionGroupHandler = async (
       code,
       description,
       permissions,
+      parentGroupId,
       status,
     });
 
     res.status(200).json({
       success: true,
-      message: 'Cap nhat nhom quyen thanh cong',
+      message: 'Cap nhat vai tro thanh cong',
       item,
     });
   } catch (error) {
@@ -193,7 +207,7 @@ export const deletePermissionGroupHandler = async (
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({
         success: false,
-        message: 'Nhom quyen khong hop le',
+        message: 'Vai tro khong hop le',
       });
       return;
     }
@@ -202,7 +216,7 @@ export const deletePermissionGroupHandler = async (
 
     res.status(200).json({
       success: true,
-      message: 'Xoa nhom quyen thanh cong',
+      message: 'Xoa vai tro thanh cong',
     });
   } catch (error) {
     res.status(400).json({

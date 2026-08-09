@@ -24,6 +24,83 @@ const parseNonNegativeNumber = (value: unknown): number | undefined => {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
 };
 
+const parseTimeRates = (
+  value: unknown
+): Array<{
+  minutes: number;
+  price: number;
+}> => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => {
+      const minutes = parseNonNegativeNumber((item as { minutes?: unknown })?.minutes);
+      const price = parseNonNegativeNumber((item as { price?: unknown })?.price);
+
+      if (typeof minutes !== 'number' || typeof price !== 'number') {
+        return null;
+      }
+
+      return { minutes, price };
+    })
+    .filter(
+      (
+        item
+      ): item is {
+        minutes: number;
+        price: number;
+      } => Boolean(item)
+    );
+};
+
+const parseTimeFrames = (
+  value: unknown
+): Array<{
+  name: string;
+  startTime: string;
+  endTime: string;
+  price: number;
+}> => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => {
+      const name =
+        typeof (item as { name?: unknown })?.name === 'string'
+          ? (item as { name: string }).name.trim()
+          : '';
+      const startTime =
+        typeof (item as { startTime?: unknown })?.startTime === 'string'
+          ? (item as { startTime: string }).startTime.trim()
+          : '';
+      const endTime =
+        typeof (item as { endTime?: unknown })?.endTime === 'string'
+          ? (item as { endTime: string }).endTime.trim()
+          : '';
+      const price = parseNonNegativeNumber((item as { price?: unknown })?.price);
+
+      if (!name || !startTime || !endTime || typeof price !== 'number') {
+        return null;
+      }
+
+      return { name, startTime, endTime, price };
+    })
+    .filter(
+      (
+        item
+      ): item is {
+        name: string;
+        startTime: string;
+        endTime: string;
+        price: number;
+      } => Boolean(item)
+    );
+};
+
 const isValidObjectId = (value: string): boolean => mongoose.Types.ObjectId.isValid(value);
 
 export const listAdminPricingsHandler = async (
@@ -85,11 +162,31 @@ const validatePricingPayload = (
     name: string;
     pricePerKwh: number;
     pricePerMinute: number;
+    hourlyPrice: number;
+    parkingFee: number;
+    vat: number;
+    description: string;
+    timeRates: Array<{
+      minutes: number;
+      price: number;
+    }>;
+    timeFrames: Array<{
+      name: string;
+      startTime: string;
+      endTime: string;
+      price: number;
+    }>;
   };
 } => {
   const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
   const pricePerKwh = parseNonNegativeNumber(req.body.pricePerKwh);
   const pricePerMinute = parseNonNegativeNumber(req.body.pricePerMinute) ?? 0;
+  const hourlyPrice = parseNonNegativeNumber(req.body.hourlyPrice) ?? 0;
+  const parkingFee = parseNonNegativeNumber(req.body.parkingFee) ?? 0;
+  const vat = parseNonNegativeNumber(req.body.vat) ?? 0;
+  const description = typeof req.body.description === 'string' ? req.body.description.trim() : '';
+  const timeRates = parseTimeRates(req.body.timeRates);
+  const timeFrames = parseTimeFrames(req.body.timeFrames);
 
   if (!name || typeof pricePerKwh !== 'number') {
     return { valid: false };
@@ -101,6 +198,12 @@ const validatePricingPayload = (
       name,
       pricePerKwh,
       pricePerMinute,
+      hourlyPrice,
+      parkingFee,
+      vat,
+      description,
+      timeRates,
+      timeFrames,
     },
   };
 };
