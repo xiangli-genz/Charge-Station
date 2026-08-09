@@ -1,6 +1,7 @@
 import ChargingConnectorType, {
   IChargingConnectorType,
 } from '../models/ChargingConnectorType';
+import { normalizeMediaUrl, uploadBase64MediaIfNeeded } from './media.service';
 
 export interface ChargingConnectorTypeResponse {
   id: string;
@@ -36,7 +37,7 @@ const toChargingConnectorTypeResponse = (
   chargingType: item.chargingType,
   currentType: item.currentType,
   description: item.description || '',
-  image: item.image || '',
+  image: normalizeMediaUrl(item.image || ''),
   createdById: item.createdById ?? null,
   createdAt: item.createdAt,
   updatedAt: item.updatedAt,
@@ -75,6 +76,10 @@ export const createChargingConnectorType = async (
 ): Promise<ChargingConnectorTypeResponse> => {
   const shortName = normalizeShortName(payload.shortName);
   await ensureUniqueChargingConnectorType({ name: payload.name, shortName });
+  const image = await uploadBase64MediaIfNeeded(payload.image || '', {
+    folderPath: 'tram-sac/connector-types',
+    filenamePrefix: 'connector-type',
+  });
 
   const item = await ChargingConnectorType.create({
     name: payload.name,
@@ -82,7 +87,7 @@ export const createChargingConnectorType = async (
     chargingType: payload.chargingType,
     currentType: payload.currentType,
     description: payload.description || '',
-    image: payload.image || '',
+    image,
     createdById: payload.createdById ?? null,
   });
 
@@ -104,13 +109,17 @@ export const updateChargingConnectorType = async (
     { name: payload.name, shortName },
     connectorTypeId
   );
+  const image = await uploadBase64MediaIfNeeded(payload.image || '', {
+    folderPath: 'tram-sac/connector-types',
+    filenamePrefix: 'connector-type',
+  });
 
   item.name = payload.name;
   item.shortName = shortName;
   item.chargingType = payload.chargingType;
   item.currentType = payload.currentType;
   item.description = payload.description || '';
-  item.image = payload.image || '';
+  item.image = image;
   await item.save();
 
   return toChargingConnectorTypeResponse(item);

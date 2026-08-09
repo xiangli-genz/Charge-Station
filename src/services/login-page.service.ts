@@ -1,4 +1,5 @@
 import LoginPage, { ILoginPage } from '../models/LoginPage';
+import { normalizeMediaUrl, uploadBase64MediaIfNeeded } from './media.service';
 
 export interface LoginPageResponse {
   id: string;
@@ -54,9 +55,9 @@ const toLoginPageResponse = (item: ILoginPage): LoginPageResponse => ({
   website: item.website,
   theme: item.theme,
   description: item.description || '',
-  logoImage: item.logoImage || '',
-  iconImage: item.iconImage || '',
-  backgroundImage: item.backgroundImage || '',
+  logoImage: normalizeMediaUrl(item.logoImage || ''),
+  iconImage: normalizeMediaUrl(item.iconImage || ''),
+  backgroundImage: normalizeMediaUrl(item.backgroundImage || ''),
   iosAppLink: item.iosAppLink || '',
   androidAppLink: item.androidAppLink || '',
   guideLink: item.guideLink || '',
@@ -89,6 +90,20 @@ export const listLoginPages = async (): Promise<LoginPageResponse[]> => {
 export const createLoginPage = async (payload: LoginPagePayload): Promise<LoginPageResponse> => {
   const host = normalizeHost(payload.host);
   await ensureUniqueHost(host);
+  const [logoImage, iconImage, backgroundImage] = await Promise.all([
+    uploadBase64MediaIfNeeded(payload.logoImage || '', {
+      folderPath: 'tram-sac/login-pages/logo',
+      filenamePrefix: 'login-logo',
+    }),
+    uploadBase64MediaIfNeeded(payload.iconImage || '', {
+      folderPath: 'tram-sac/login-pages/icon',
+      filenamePrefix: 'login-icon',
+    }),
+    uploadBase64MediaIfNeeded(payload.backgroundImage || '', {
+      folderPath: 'tram-sac/login-pages/background',
+      filenamePrefix: 'login-background',
+    }),
+  ]);
 
   const item = await LoginPage.create({
     host,
@@ -97,9 +112,9 @@ export const createLoginPage = async (payload: LoginPagePayload): Promise<LoginP
     website: payload.website,
     theme: payload.theme,
     description: payload.description || '',
-    logoImage: payload.logoImage || '',
-    iconImage: payload.iconImage || '',
-    backgroundImage: payload.backgroundImage || '',
+    logoImage,
+    iconImage,
+    backgroundImage,
     iosAppLink: payload.iosAppLink || '',
     androidAppLink: payload.androidAppLink || '',
     guideLink: payload.guideLink || '',
@@ -123,6 +138,20 @@ export const updateLoginPage = async (
 
   const host = normalizeHost(payload.host);
   await ensureUniqueHost(host, loginPageId);
+  const [logoImage, iconImage, backgroundImage] = await Promise.all([
+    uploadBase64MediaIfNeeded(payload.logoImage || '', {
+      folderPath: 'tram-sac/login-pages/logo',
+      filenamePrefix: 'login-logo',
+    }),
+    uploadBase64MediaIfNeeded(payload.iconImage || '', {
+      folderPath: 'tram-sac/login-pages/icon',
+      filenamePrefix: 'login-icon',
+    }),
+    uploadBase64MediaIfNeeded(payload.backgroundImage || '', {
+      folderPath: 'tram-sac/login-pages/background',
+      filenamePrefix: 'login-background',
+    }),
+  ]);
 
   item.host = host;
   item.title = payload.title || '';
@@ -130,9 +159,9 @@ export const updateLoginPage = async (
   item.website = payload.website;
   item.theme = payload.theme;
   item.description = payload.description || '';
-  item.logoImage = payload.logoImage || '';
-  item.iconImage = payload.iconImage || '';
-  item.backgroundImage = payload.backgroundImage || '';
+  item.logoImage = logoImage;
+  item.iconImage = iconImage;
+  item.backgroundImage = backgroundImage;
   item.iosAppLink = payload.iosAppLink || '';
   item.androidAppLink = payload.androidAppLink || '';
   item.guideLink = payload.guideLink || '';

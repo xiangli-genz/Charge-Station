@@ -94,7 +94,7 @@ interface StationSearchAggregationRow {
   updatedAt: Date;
 }
 
-const buildChargingPointFilter = (
+export const buildChargingPointFilter = (
   params: StationSearchParams
 ): {
   connectorType?: ConnectorType;
@@ -136,7 +136,7 @@ const buildChargingPointFilter = (
   return filter;
 };
 
-const buildStationFilter = (params: StationSearchParams): {
+export const buildStationFilter = (params: StationSearchParams): {
   status?: StationStatus;
   $or?: Array<{ imei?: RegExp; name?: RegExp; address?: RegExp }>;
 } => {

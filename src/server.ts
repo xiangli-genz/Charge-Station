@@ -2,7 +2,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express, { Application, Request, Response } from 'express';
+import activityLogRoutes from './routes/activity-log.routes';
+import chargingConnectorTypeRoutes from './routes/charging-connector-type.routes';
 import cors from 'cors';
+import customerAuthRoutes from './routes/customer-auth.routes';
+import deviceTypeRoutes from './routes/device-type.routes';
 import path from 'path';
 import adminChargingPointRoutes from './routes/admin-charging-point.routes';
 import adminBookingRoutes from './routes/admin-booking.routes';
@@ -12,16 +16,17 @@ import adminSwapStationRoutes from './routes/admin-swap-station.routes';
 import adminUserTreeRoutes from './routes/admin-user-tree.routes';
 import connectDB from './config/db';
 import authRoutes from './routes/auth.routes';
-import chargingConnectorTypeRoutes from './routes/charging-connector-type.routes';
-import deviceTypeRoutes from './routes/device-type.routes';
+import favoriteStationRoutes from './routes/favorite-station.routes';
 import loginPageRoutes from './routes/login-page.routes';
 import permissionRoutes from './routes/permission.routes';
 import permissionGroupRoutes from './routes/permission-group.routes';
+import profileRoutes from './routes/profile.routes';
 import { getLoginPageByHost } from './services/login-page.service';
 import simTypeRoutes from './routes/sim-type.routes';
 import stationRoutes from './routes/station.routes';
 import superadminRoutes from './routes/superadmin.routes';
 import swapStationRoutes from './routes/swap-station.routes';
+import userBookingRoutes from './routes/user-booking.routes';
 
 connectDB();
 
@@ -137,6 +142,11 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 app.use('/api/admin/auth', authRoutes);
+app.use('/api/app/auth', customerAuthRoutes);
+app.use('/api/app/profile', profileRoutes);
+app.use('/api/app/favorites', favoriteStationRoutes);
+app.use('/api/app/activity-logs', activityLogRoutes);
+app.use('/api/app/bookings', userBookingRoutes);
 app.use('/api/admin/bookings', adminBookingRoutes);
 app.use('/api/admin/users', adminUserTreeRoutes);
 app.use('/api/admin/login-pages', loginPageRoutes);

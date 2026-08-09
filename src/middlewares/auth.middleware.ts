@@ -70,6 +70,30 @@ export const requireAdmin = (
   next();
 };
 
+export const requireCustomer = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (!req.user) {
+    res.status(401).json({
+      success: false,
+      message: 'Chua xac thuc nguoi dung',
+    });
+    return;
+  }
+
+  if (req.user.role !== 'customer') {
+    res.status(403).json({
+      success: false,
+      message: 'Chi tai khoan nguoi dung moi co quyen truy cap',
+    });
+    return;
+  }
+
+  next();
+};
+
 export const requireSuperAdmin = (
   req: AuthRequest,
   res: Response,

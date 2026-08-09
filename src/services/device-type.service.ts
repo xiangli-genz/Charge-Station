@@ -1,4 +1,5 @@
 import DeviceType, { IDeviceType } from '../models/DeviceType';
+import { normalizeMediaUrl, uploadBase64MediaIfNeeded } from './media.service';
 
 export interface DeviceTypeResponse {
   id: string;
@@ -29,7 +30,7 @@ const toDeviceTypeResponse = (item: IDeviceType): DeviceTypeResponse => ({
   code: item.code,
   manufacturer: item.manufacturer || '',
   description: item.description || '',
-  image: item.image || '',
+  image: normalizeMediaUrl(item.image || ''),
   createdById: item.createdById ?? null,
   createdAt: item.createdAt,
   updatedAt: item.updatedAt,
@@ -68,13 +69,17 @@ export const createDeviceType = async (
 ): Promise<DeviceTypeResponse> => {
   const code = normalizeCode(payload.code);
   await ensureUniqueDeviceType({ name: payload.name, code });
+  const image = await uploadBase64MediaIfNeeded(payload.image || '', {
+    folderPath: 'tram-sac/device-types',
+    filenamePrefix: 'device-type',
+  });
 
   const item = await DeviceType.create({
     name: payload.name,
     code,
     manufacturer: payload.manufacturer || '',
     description: payload.description || '',
-    image: payload.image || '',
+    image,
     createdById: payload.createdById ?? null,
   });
 
@@ -93,12 +98,16 @@ export const updateDeviceType = async (
 
   const code = normalizeCode(payload.code);
   await ensureUniqueDeviceType({ name: payload.name, code }, deviceTypeId);
+  const image = await uploadBase64MediaIfNeeded(payload.image || '', {
+    folderPath: 'tram-sac/device-types',
+    filenamePrefix: 'device-type',
+  });
 
   item.name = payload.name;
   item.code = code;
   item.manufacturer = payload.manufacturer || '';
   item.description = payload.description || '';
-  item.image = payload.image || '';
+  item.image = image;
   await item.save();
 
   return toDeviceTypeResponse(item);
