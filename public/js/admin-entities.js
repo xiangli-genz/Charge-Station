@@ -125,9 +125,10 @@ window.adminEntityHelpers = {
       },
       importDataset: "stations",
       formTitle: "Nhap tay tram sac",
-      formLead: "Dien thong tin tram, toa do va trang thai van hanh.",
-      hint: "Nhap ten tram, dia chi, toa do va trang thai van hanh.",
+      formLead: "Dien IMEI, thong tin tram, toa do va trang thai van hanh.",
+      hint: "Nhap IMEI, ten tram, dia chi, toa do va trang thai van hanh.",
       fields: [
+        { key: "imei", label: "IMEI", type: "text", placeholder: "8657265579" },
         { key: "name", label: "Ten tram", type: "text", placeholder: "Tram Sac Quan 1", required: true },
         { key: "address", label: "Dia chi", type: "text", placeholder: "123 Le Loi, Quan 1, TP.HCM", required: true },
         { key: "location.lat", label: "Vi do", type: "number", placeholder: "10.7769", required: true, step: "0.000001" },
@@ -140,12 +141,14 @@ window.adminEntityHelpers = {
           options: [
             { value: "active", label: "active" },
             { value: "inactive", label: "inactive" },
-            { value: "maintenance", label: "maintenance" }
+            { value: "maintenance", label: "maintenance" },
+            { value: "closed", label: "closed" }
           ]
         }
       ],
       buildPayload(values) {
         return {
+          imei: values.imei,
           name: values.name,
           address: values.address,
           location: {
@@ -157,6 +160,7 @@ window.adminEntityHelpers = {
       },
       toFormValues(item) {
         return {
+          imei: item.imei || "",
           name: item.name,
           address: item.address,
           "location.lat": String(item.location?.lat ?? ""),
@@ -165,7 +169,7 @@ window.adminEntityHelpers = {
         };
       },
       searchText(item) {
-        return `${item.name} ${item.address} ${item.status}`.toLowerCase();
+        return `${item.imei || ""} ${item.name} ${item.address} ${item.status}`.toLowerCase();
       },
       renderItem(item) {
         return {
@@ -213,7 +217,8 @@ window.adminEntityHelpers = {
           options: [
             { value: "active", label: "active" },
             { value: "inactive", label: "inactive" },
-            { value: "maintenance", label: "maintenance" }
+            { value: "maintenance", label: "maintenance" },
+            { value: "closed", label: "closed" }
           ]
         }
       ],

@@ -11,6 +11,12 @@ cp .env.example .env
 npm run dev
 ```
 
+cd "D:\My_project\PJ_Trạm_sạc\tram-sac-api-ts"
+cmd /c npm run dev
+
+cd "D:\My_project\PJ_Trạm_sạc\tram-sac-api-ts\mobile-app"
+cmd /c npx expo start -c
+
 Server chay tai `http://localhost:5000`, kiem tra bang `GET /api/health`.
 
 API auth admin co san tai `POST /api/admin/auth/register`, `POST /api/admin/auth/login`, `GET /api/admin/auth/me`.
@@ -580,5 +586,6 @@ try {
   session.endSession();
 }
 ```
-#   C h a r g e h u b  
+#   C h a r g e h u b 
+ 
  

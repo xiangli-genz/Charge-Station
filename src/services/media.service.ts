@@ -18,6 +18,10 @@ const getFileManagerSecret = (): string => {
   return process.env.FILE_MANAGER_SECRET?.trim() || '';
 };
 
+const isLoopbackHost = (hostname: string): boolean => {
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+};
+
 const sanitizeFolderPath = (folderPath: string): string => {
   return folderPath
     .trim()
@@ -64,12 +68,34 @@ export const normalizeMediaUrl = (value: string): string => {
     return '';
   }
 
-  if (normalized.startsWith('http://') || normalized.startsWith('https://') || isDataUrl(normalized)) {
+  if (isDataUrl(normalized)) {
     return normalized;
   }
 
   if (normalized.startsWith('/media/')) {
     return `${getFileManagerPublicUrl()}${normalized}`;
+  }
+
+  if (normalized.startsWith('media/')) {
+    return `${getFileManagerPublicUrl()}/${normalized}`;
+  }
+
+  if (normalized.startsWith('http://') || normalized.startsWith('https://')) {
+    try {
+      const parsedUrl = new URL(normalized);
+      const publicUrl = new URL(getFileManagerPublicUrl());
+
+      if (isLoopbackHost(parsedUrl.hostname) && !isLoopbackHost(publicUrl.hostname)) {
+        parsedUrl.protocol = publicUrl.protocol;
+        parsedUrl.hostname = publicUrl.hostname;
+        parsedUrl.port = publicUrl.port;
+        return parsedUrl.toString().replace(/\/+$/, '');
+      }
+    } catch {
+      return normalized;
+    }
+
+    return normalized;
   }
 
   return normalized;
@@ -99,6 +125,10 @@ export const uploadBase64MediaIfNeeded = async (
   }
 
   const { mimeType, buffer } = parseDataUrl(normalized);
+  if (!buffer.length) {
+    throw new Error('Tep media rong');
+  }
+
   const fileName = createFilename(options.filenamePrefix, mimeType);
   const folderPath = sanitizeFolderPath(options.folderPath);
   const formData = new FormData();
@@ -122,7 +152,10 @@ export const uploadBase64MediaIfNeeded = async (
     | null;
 
   if (!response.ok || data?.code !== 'success' || !data.saveLinks?.length) {
-    throw new Error(data?.message || 'Khong the tai media len file-manager');
+    throw new Error(
+      data?.message ||
+        `Khong the tai media len file-manager (HTTP ${response.status})`
+    );
   }
 
   const uploaded = data.saveLinks[0];

@@ -1,0 +1,25 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Gia dich vu
+
+block management_lead
+  | Quan ly bang gia dien, phi theo thoi gian va cac moc gia dich vu tren trang rieng.
+
+block management_content
+  section.management-card.pricing-panel
+    .management-panel-header
+      div
+        h2 Gia dich vu
+        p Quan ly gia dien, gia chiem dung dau sac, gia do xe va bang gia theo thoi gian.
+      .station-admin-panel-actions
+        button.primary-btn(type='button', data-action='open-pricing-create') + Tao moi
+    .pricing-search-grid
+      .management-form-field
+        label(for='pricingSearchName') Ten
+        input#pricingSearchName(type='search', placeholder='Nhap ten bang gia')
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-pricing-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-pricing-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai bang gia dich vu...

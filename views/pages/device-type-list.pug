@@ -1,0 +1,30 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Loai thiet bi
+
+block management_lead
+  | Hien thi danh sach loai thiet bi, tim kiem theo ten, ma va nha san xuat, dong thoi tao moi loai thiet bi tren trang rieng.
+
+block management_content
+  section.management-card.permission-simple-panel
+    .management-panel-header.permission-simple-header
+      div
+        h2 Quan ly loai thiet bi
+        p Hien thi danh sach cac loai thiet bi, tim kiem theo ten, ma va nha san xuat, dong thoi cho phep tao moi loai thiet bi.
+      button.primary-btn(type='button', data-action='open-device-type-create') + Tao moi
+    .device-type-search-grid
+      .management-form-field
+        label(for='deviceTypeSearchName') Ten
+        input#deviceTypeSearchName.management-search(type='search', placeholder='Nhap ten loai thiet bi')
+      .management-form-field
+        label(for='deviceTypeSearchCode') Ma
+        input#deviceTypeSearchCode.management-search(type='search', placeholder='Nhap ma loai thiet bi')
+      .management-form-field
+        label(for='deviceTypeSearchManufacturer') Nha san xuat
+        input#deviceTypeSearchManufacturer.management-search(type='search', placeholder='Nhap nha san xuat')
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-device-type-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-device-type-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai danh sach loai thiet bi...

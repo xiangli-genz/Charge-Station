@@ -1,0 +1,33 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Bao cao tong hop
+
+block management_lead
+  | Hien thi du lieu tong hop theo cac chu ky nam, thang, tuan va ngay.
+
+block management_content
+  section.management-card.aggregate-report-panel
+    .management-panel-header
+      div
+        h2 Bao cao tong hop
+        p Theo doi du lieu tong hop theo chu ky nam, thang, tuan va ngay.
+    .booking-history-filter-grid
+      .management-form-field
+        label(for='aggregateReportStartDate') Thoi gian bat dau
+        input#aggregateReportStartDate(type='date')
+      .management-form-field
+        label(for='aggregateReportEndDate') Thoi gian ket thuc
+        input#aggregateReportEndDate(type='date')
+      .management-form-field
+        label(for='aggregateReportCycle') Chu ky
+        select#aggregateReportCycle
+          option(value='year') Nam
+          option(value='month') Thang
+          option(value='week') Tuan
+          option(value='day') Ngay
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-aggregate-report-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-aggregate-report-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai bao cao tong hop...

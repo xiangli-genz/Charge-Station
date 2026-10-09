@@ -1,0 +1,33 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Trang dang nhap
+
+block management_lead
+  | Hien thi danh sach trang dang nhap, tim kiem theo host, tieu de, ten cong ty, website va tao moi tren trang rieng.
+
+block management_content
+  section.management-card.permission-simple-panel
+    .management-panel-header.permission-simple-header
+      div
+        h2 Quan ly trang dang nhap
+        p Cau hinh giao dien dang nhap theo tung host voi logo, icon, anh nen va cac lien ket ung dung.
+      button.primary-btn(type='button', data-action='open-login-page-create') + Tao moi
+    .login-page-search-grid
+      .management-form-field
+        label(for='loginPageSearchHost') Host
+        input#loginPageSearchHost.management-search(type='search', placeholder='Nhap host')
+      .management-form-field
+        label(for='loginPageSearchTitle') Tieu de
+        input#loginPageSearchTitle.management-search(type='search', placeholder='Nhap tieu de')
+      .management-form-field
+        label(for='loginPageSearchCompanyName') Ten cong ty
+        input#loginPageSearchCompanyName.management-search(type='search', placeholder='Nhap ten cong ty')
+      .management-form-field
+        label(for='loginPageSearchWebsite') Website
+        input#loginPageSearchWebsite.management-search(type='search', placeholder='Nhap website')
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-login-page-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-login-page-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai danh sach trang dang nhap...

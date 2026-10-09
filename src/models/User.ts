@@ -2,6 +2,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 
 export type UserRole = 'customer' | 'admin' | 'superadmin';
 export type ManagedUserStatus = 'active' | 'inactive';
+export type VehicleType = 'motorbike' | 'car' | 'truck' | 'other';
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -10,6 +11,14 @@ export interface IUser extends Document {
   phone: string;
   email: string;
   passwordHash: string;
+  pinHash?: string;
+  pinEnabled: boolean;
+  registrationVerified: boolean;
+  emailVerifiedAt?: Date | null;
+  phoneVerifiedAt?: Date | null;
+  vehicleType: VehicleType;
+  vehicleName: string;
+  vehicleImageUrl: string;
   walletBalance: number;
   role: UserRole;
   status: ManagedUserStatus;
@@ -37,7 +46,19 @@ const userSchema = new Schema<IUser>(
     phone: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true, lowercase: true },
     passwordHash: { type: String, required: true },
-    walletBalance: { type: Number, default: 0, min: 0 },
+    pinHash: { type: String, default: '' },
+    pinEnabled: { type: Boolean, default: false },
+    registrationVerified: { type: Boolean, default: true },
+  emailVerifiedAt: { type: Date, default: null },
+  phoneVerifiedAt: { type: Date, default: null },
+  vehicleType: {
+    type: String,
+    enum: ['motorbike', 'car', 'truck', 'other'],
+    default: 'motorbike',
+  },
+  vehicleName: { type: String, default: '', trim: true },
+  vehicleImageUrl: { type: String, default: '', trim: true },
+  walletBalance: { type: Number, default: 0, min: 0 },
     status: {
       type: String,
       enum: ['active', 'inactive'],

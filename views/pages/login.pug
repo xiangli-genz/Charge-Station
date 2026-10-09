@@ -2,21 +2,44 @@ extends ../layouts/main
 
 block content
   main.auth-shell
+    - var authBackgroundStyle = authPageConfig && authPageConfig.backgroundImage ? 'background-image: linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(255, 250, 242, 0.9)), url(' + authPageConfig.backgroundImage + '); background-size: cover; background-position: center;' : ''
     .topbar
-      a.brand(href='/') Tram Sac Hub
+      a.brand(href='/')= (authPageConfig && authPageConfig.companyName) || 'Tram Sac Hub'
       .nav-actions
         a.btn.ghost(href='/') Trang chu
         a.btn.ghost(href='/register') Dang ky admin
 
     .auth-grid
-      section.panel.soft
+      section.panel.soft.auth-brand-panel(style=authBackgroundStyle)
+        if authPageConfig && authPageConfig.logoImage
+          img.auth-brand-logo(src=authPageConfig.logoImage, alt='Logo dang nhap')
         p.eyebrow Admin Access
-        h1 Dang nhap vao dashboard quan tri
-        p.lead Su dung tai khoan admin trong MongoDB hoac tai khoan superadmin he thong duoc cau hinh trong file `.env`.
+        h1= (authPageConfig && authPageConfig.title) || 'Dang nhap vao trang chu quan tri'
+        p.lead
+          | Su dung tai khoan admin trong MongoDB hoac tai khoan admin he thong duoc cau hinh trong file `.env`.
+          if authPageConfig && authPageConfig.website
+            |  Website: 
+            a(href=authPageConfig.website, target='_blank', rel='noreferrer')= authPageConfig.website
         ul.helper
           li Admin dang nhap bang tai khoan da dang ky.
-          li Superadmin dang nhap bang `SUPERADMIN_EMAIL` va `SUPERADMIN_PASSWORD`.
-          li Ca hai tai khoan deu su dung chung dashboard va API admin.
+          li Tai khoan admin he thong dang nhap bang `SUPERADMIN_EMAIL` va `SUPERADMIN_PASSWORD`.
+          li Tat ca tai khoan admin deu dung chung trang chu va API quan tri.
+        if authPageConfig && authPageConfig.description
+          p.helper= authPageConfig.description
+        if authPageConfig && (authPageConfig.iosAppLink || authPageConfig.androidAppLink || authPageConfig.guideLink)
+          .hero-actions
+            if authPageConfig.iosAppLink
+              a.btn.ghost(href=authPageConfig.iosAppLink, target='_blank', rel='noreferrer') Tai iOS app
+            if authPageConfig.androidAppLink
+              a.btn.ghost(href=authPageConfig.androidAppLink, target='_blank', rel='noreferrer') Tai Android app
+            if authPageConfig.guideLink
+              a.btn.ghost(href=authPageConfig.guideLink, target='_blank', rel='noreferrer') Huong dan su dung
+        if authPageConfig && (authPageConfig.servicePhone || authPageConfig.supportPhone)
+          .stack(style='margin-top: 18px;')
+            if authPageConfig.servicePhone
+              p.helper Ho tro dich vu: #{authPageConfig.servicePhone}
+            if authPageConfig.supportPhone
+              p.helper Ho tro ky thuat: #{authPageConfig.supportPhone}
 
       section.panel
         h2 Tai khoan quan tri
@@ -27,9 +50,9 @@ block content
           div
             label.field-label(for='password') Mat khau
             input#password.text-input(type='password', placeholder='123456')
-          button#loginSubmitBtn.btn.primary(type='button') Dang nhap vao dashboard
+          button#loginSubmitBtn.btn.primary(type='button') Dang nhap vao trang chu
           #loginStatus.status-box Chua dang nhap.
-        p.helper(style='margin-top: 18px;') Neu la superadmin, hay dung dung email va mat khau trong `.env`.
+        p.helper(style='margin-top: 18px;') Neu dung tai khoan admin he thong, hay su dung email va mat khau trong `.env`.
 
 block scripts
   script(src='/js/login.js')

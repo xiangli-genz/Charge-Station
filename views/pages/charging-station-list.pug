@@ -1,0 +1,32 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Thong tin tram sac
+
+block management_lead
+  | Hien thi danh sach tram sac theo bo loc IMEI, ten tram va dia chi tren mot trang rieng.
+
+block management_content
+  section.management-card.station-admin-panel
+    .management-panel-header
+      div
+        h2 Thong tin tram sac
+        p Hien thi cac tram cua nguoi so huu va cau hinh thong tin tram sac voi bo loc theo IMEI, ten tram, dia chi.
+      .station-admin-panel-actions
+        button.outline-btn(type='button', data-action='download-station-template') Tai mau nhap du lieu
+        button.primary-btn(type='button', data-action='open-station-create') + Tao tram
+    .station-admin-search-grid
+      .management-form-field
+        label(for='stationAdminSearchImei') IMEI
+        input#stationAdminSearchImei(type='search', placeholder='Nhap IMEI')
+      .management-form-field
+        label(for='stationAdminSearchName') Ten tram
+        input#stationAdminSearchName(type='search', placeholder='Nhap ten tram')
+      .management-form-field
+        label(for='stationAdminSearchAddress') Dia chi
+        input#stationAdminSearchAddress(type='search', placeholder='Nhap dia chi')
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-station-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-station-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai thong tin tram sac...

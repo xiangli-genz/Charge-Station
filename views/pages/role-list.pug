@@ -1,0 +1,24 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Vai tro
+
+block management_lead
+  | Hien thi danh sach vai tro, tim kiem theo ten vai tro va tao moi vai tro tren trang rieng.
+
+block management_content
+  section.management-card.permission-simple-panel
+    .management-panel-header.permission-simple-header
+      div
+        h2 Quan ly vai tro
+        p Hien thi danh sach cac vai tro va cho phep tao moi vai tro kem danh sach quyen.
+      button.primary-btn(type='button', data-action='open-role-create') + Tao moi
+    .role-search-grid
+      .management-form-field
+        label(for='permissionGroupSearch') Ten vai tro
+        input#permissionGroupSearch.management-search(type='search', placeholder='Nhap ten vai tro')
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-role-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-role-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai danh sach vai tro...

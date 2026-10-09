@@ -1,0 +1,33 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Cong sac
+
+block management_lead
+  | Quan ly danh sach cong sac, loai cong, cong suat va trang thai phuc vu tren trang rieng.
+
+block management_content
+  section.management-card.charging-point-panel
+    .management-panel-header
+      div
+        h2 Cong sac
+        p Theo doi ma cong, loai dau noi, cong suat va trang thai phuc vu cua tung cong sac.
+      .station-admin-panel-actions
+        button.primary-btn(type='button', data-action='open-charging-point-create') + Tao cong sac
+    .charging-point-search-grid
+      .management-form-field
+        label(for='chargingPointSearchCode') Ten cong sac
+        input#chargingPointSearchCode(type='search', placeholder='Nhap ten cong sac')
+      .management-form-field
+        label(for='chargingPointSearchStationId') Tram sac
+        select#chargingPointSearchStationId
+          option(value='') Tat ca
+      .management-form-field
+        label(for='chargingPointSearchConnectorType') Loai cong
+        select#chargingPointSearchConnectorType
+          option(value='all') Tat ca
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-charging-point-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-charging-point-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai danh sach cong sac...

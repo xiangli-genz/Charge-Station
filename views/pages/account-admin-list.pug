@@ -1,0 +1,35 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Quan ly tai khoan
+
+block management_lead
+  | Quan ly cay tai khoan cha/con, tim kiem danh sach va thao tac tao moi, sua, xoa ngay tren trang rieng.
+
+block management_content
+  section.management-card.account-simple-panel
+    .management-panel-header.account-simple-header
+      div
+        h2 Danh sach tai khoan quan tri
+        p Theo doi cay tai khoan cha/con, tim nhanh theo tai khoan, ho ten va email.
+      button.primary-btn(type='button', data-action='open-account-create') + Tao moi
+    .account-table-card(style='padding: 18px 20px 20px;')
+      .account-list-toolbar
+        .management-form-field
+          label(for='accountKeywordSearch') Tai khoan hoac ho ten
+          input#accountKeywordSearch(type='search', placeholder='Tai khoan hoac ho ten')
+        .management-form-field
+          label(for='accountEmailSearch') Email
+          input#accountEmailSearch(type='search', placeholder='Email')
+        .account-filter-checks
+          label
+            input#accountFilterChildOnly(type='checkbox')
+            span Chi tai khoan con
+          label
+            input#accountFilterLeafOnly(type='checkbox')
+            span Chi tai khoan la
+        .station-admin-search-actions
+          button.primary-btn(type='button', data-action='apply-account-search') Tim kiem
+          button.outline-btn(type='button', data-action='reset-account-filters') Dat lai
+      .management-table-card
+        p.management-empty Dang tai danh sach tai khoan...

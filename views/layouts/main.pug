@@ -5,6 +5,8 @@ html(lang="vi")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title= pageTitle || 'Trạm Sạc Hub'
     link(rel="stylesheet", href=stylesheet || '/css/site.css')
+    if faviconHref
+      link(rel='icon', href=faviconHref)
     block head
   body(class=bodyClass || '')
     block content

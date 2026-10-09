@@ -16,7 +16,7 @@ function setLoginStatus(message, isError = false) {
 }
 
 function redirectByRole(user) {
-  window.location.href = "/dashboard";
+  window.location.href = "/";
 }
 
 function clearAdminSession() {

@@ -1,0 +1,27 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Loai sim
+
+block management_lead
+  | Hien thi danh sach loai sim, tim kiem theo ten va ma, dong thoi tao moi loai sim tren trang rieng.
+
+block management_content
+  section.management-card.permission-simple-panel
+    .management-panel-header.permission-simple-header
+      div
+        h2 Quan ly loai sim
+        p Hien thi danh sach cac loai sim, tim kiem theo ten va ma, dong thoi cho phep tao moi loai sim.
+      button.primary-btn(type='button', data-action='open-sim-type-create') + Tao moi
+    .sim-type-search-grid
+      .management-form-field
+        label(for='simTypeSearchName') Ten
+        input#simTypeSearchName.management-search(type='search', placeholder='Nhap ten loai sim')
+      .management-form-field
+        label(for='simTypeSearchCode') Ma
+        input#simTypeSearchCode.management-search(type='search', placeholder='Nhap ma loai sim')
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-sim-type-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-sim-type-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai danh sach loai sim...

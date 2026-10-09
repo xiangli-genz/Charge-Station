@@ -1,0 +1,20 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Nhom quyen
+
+block management_lead
+  | Tao va quan ly nhom quyen tren mot trang rieng de de mo rong ve sau.
+
+block management_content
+  section.management-card.permission-simple-panel
+    .management-panel-header.permission-simple-header
+      div
+        h2 Danh sach nhom quyen
+        p Chuan hoa cac nhom quyen de gan cho tai khoan nguoi dung.
+      button.primary-btn(type='button', data-action='open-permission-create') + Tao nhom quyen
+    .permission-simple-search
+      input#permissionGroupSearch.management-search(type='search', placeholder='Tu khoa...')
+      button.permission-search-btn(type='button', data-action='apply-permission-search') Tim kiem
+    .management-table-card
+      p.management-empty Dang tai nhom quyen...

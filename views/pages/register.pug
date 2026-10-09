@@ -2,21 +2,31 @@ extends ../layouts/main
 
 block content
   main.auth-shell
+    - var authBackgroundStyle = authPageConfig && authPageConfig.backgroundImage ? 'background-image: linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(255, 250, 242, 0.9)), url(' + authPageConfig.backgroundImage + '); background-size: cover; background-position: center;' : ''
     .topbar
-      a.brand(href='/') Tram Sac Hub
+      a.brand(href='/')= (authPageConfig && authPageConfig.companyName) || 'Tram Sac Hub'
       .nav-actions
         a.btn.ghost(href='/') Trang chu
         a.btn.ghost(href='/login') Dang nhap admin
 
     .auth-grid
-      section.panel.soft
+      section.panel.soft.auth-brand-panel(style=authBackgroundStyle)
+        if authPageConfig && authPageConfig.logoImage
+          img.auth-brand-logo(src=authPageConfig.logoImage, alt='Logo dang nhap')
         p.eyebrow Admin Access
         h1 Tao tai khoan admin
-        p.lead Trang nay chi dung de tao tai khoan admin trong MongoDB. Tai khoan superadmin khong dang ky tren giao dien.
+        p.lead
+          | Trang nay chi dung de tao tai khoan admin trong MongoDB. Tai khoan admin he thong duoc cau hinh truc tiep trong file `.env`.
+          if authPageConfig && authPageConfig.website
+            |  Website: 
+            a(href=authPageConfig.website, target='_blank', rel='noreferrer')= authPageConfig.website
         ul.helper
           li Can nhap `ADMIN_REGISTER_SECRET` de tao tai khoan admin.
-          li Superadmin dung thong tin dang nhap co dinh trong `.env`.
-          li Sau khi dang ky thanh cong, he thong chuyen vao dashboard admin.
+          li Tai khoan admin he thong dung thong tin dang nhap co dinh trong `.env`.
+          li Sau khi dang ky thanh cong, he thong chuyen vao trang chu quan tri.
+        if authPageConfig && authPageConfig.guideLink
+          .hero-actions
+            a.btn.ghost(href=authPageConfig.guideLink, target='_blank', rel='noreferrer') Huong dan su dung
 
       section.panel
         h2 Thong tin admin

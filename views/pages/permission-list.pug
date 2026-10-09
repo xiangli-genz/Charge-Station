@@ -1,0 +1,28 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Quyen
+
+block management_lead
+  | Hien thi danh sach quyen, tim kiem theo ten va nhom quyen va tao moi quyen tren trang rieng.
+
+block management_content
+  section.management-card.permission-simple-panel
+    .management-panel-header.permission-simple-header
+      div
+        h2 Quan ly quyen
+        p Hien thi danh sach cac quyen, tim kiem theo ten va nhom quyen, dong thoi cho phep tao moi quyen.
+      button.primary-btn(type='button', data-action='open-permission-item-create') + Tao moi
+    .permission-admin-search-grid
+      .management-form-field
+        label(for='permissionSearchName') Ten quyen
+        input#permissionSearchName.management-search(type='search', placeholder='Nhap ten quyen')
+      .management-form-field
+        label(for='permissionSearchGroup') Nhom quyen
+        select#permissionSearchGroup.management-search
+          option(value='all') Tat ca
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-permission-item-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-permission-item-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai danh sach quyen...

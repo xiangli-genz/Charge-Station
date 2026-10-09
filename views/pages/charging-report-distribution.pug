@@ -1,0 +1,18 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Phan bo tram sac
+
+block management_lead
+  | Bao cao ban do mat do cac tram sac dang duoc lap dat theo khu vuc.
+
+block management_content
+  section.management-card.station-admin-panel.station-distribution-panel
+    .management-panel-header
+      div
+        h2 Phan bo tram sac
+        p Hien thi ban do mat do cac tram sac dang duoc lap dat theo khu vuc.
+      .station-admin-panel-actions
+        button.outline-btn(type='button', data-action='refresh-station-distribution') Lam moi du lieu
+    .management-note-card
+      p Dang tai ban do phan bo tram sac...

@@ -1,0 +1,32 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Ban do tram sac
+
+block management_lead
+  | Hien thi cac tram sac cua nguoi quan tri tren ban do theo tung trang thai va cap nhat du lieu dinh ky.
+
+block management_content
+  section.management-card.station-admin-panel
+    .management-panel-header
+      div
+        h2 Ban do tram sac
+        p Hien thi cac tram sac cua nguoi quan tri tren ban do theo tung trang thai va cap nhat dinh ky.
+      .station-admin-panel-actions
+        button.outline-btn(type='button', data-action='open-station-info-panel') Thong tin
+        button.primary-btn(type='button', data-action='refresh-station-map') Lam moi trang thai
+    .station-admin-search-grid
+      .management-form-field
+        label(for='stationAdminSearchImei') IMEI
+        input#stationAdminSearchImei(type='search', placeholder='Nhap IMEI')
+      .management-form-field
+        label(for='stationAdminSearchName') Ten tram
+        input#stationAdminSearchName(type='search', placeholder='Nhap ten tram')
+      .management-form-field
+        label(for='stationAdminSearchAddress') Dia chi
+        input#stationAdminSearchAddress(type='search', placeholder='Nhap dia chi')
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-station-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-station-search') Dat lai
+    .management-note-card
+      p Dang tai cau truc ban do tram sac...

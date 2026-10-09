@@ -1,0 +1,27 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Loai cong sac
+
+block management_lead
+  | Hien thi danh sach loai cong sac, tim kiem theo ten va ten viet tat, dong thoi tao moi loai cong sac tren trang rieng.
+
+block management_content
+  section.management-card.permission-simple-panel
+    .management-panel-header.permission-simple-header
+      div
+        h2 Quan ly loai cong sac
+        p Hien thi danh sach cac loai cong sac, tim kiem theo ten va ten viet tat, dong thoi cho phep tao moi loai cong sac.
+      button.primary-btn(type='button', data-action='open-connector-type-create') + Tao moi
+    .connector-type-search-grid
+      .management-form-field
+        label(for='connectorTypeSearchName') Ten cong sac
+        input#connectorTypeSearchName.management-search(type='search', placeholder='Nhap ten cong sac')
+      .management-form-field
+        label(for='connectorTypeSearchShortName') Ten viet tat
+        input#connectorTypeSearchShortName.management-search(type='search', placeholder='Nhap ten viet tat')
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-connector-type-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-connector-type-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai danh sach loai cong sac...

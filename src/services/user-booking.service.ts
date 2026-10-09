@@ -1,7 +1,9 @@
 import Booking, { BookingStatus, IBooking } from '../models/Booking';
 import ChargingPoint, { IChargingPoint } from '../models/ChargingPoint';
+import ChargingSession from '../models/ChargingSession';
 import Pricing, { IPricing } from '../models/Pricing';
 import Station, { IStation } from '../models/Station';
+import Transaction from '../models/Transaction';
 import User, { IUser } from '../models/User';
 import {
   ensureBookingCanBeCancelled,
@@ -26,7 +28,18 @@ interface UserBookingChargingPointSummary {
     id: string;
     name: string;
     address: string;
+    city: string;
+    district: string;
+    location: {
+      lat: number;
+      lng: number;
+    } | null;
   } | null;
+}
+
+interface UserBookingChargingSummary {
+  kwhConsumed: number;
+  amount: number;
 }
 
 export interface UserBookingResponse {
@@ -34,6 +47,12 @@ export interface UserBookingResponse {
   startTime: Date;
   endTime: Date;
   status: BookingStatus;
+  vehicle: {
+    type: string;
+    name: string;
+    imageUrl: string;
+  };
+  chargingSummary: UserBookingChargingSummary;
   chargingPoint: UserBookingChargingPointSummary;
   createdAt: Date;
   updatedAt: Date;
@@ -50,25 +69,68 @@ const ensureCustomerUser = async (userId: string): Promise<IUser> => {
 };
 
 const populateBookingQuery = (query: any) => {
-  return query.populate({
-    path: 'chargingPoint',
-    populate: [
-      { path: 'station', model: 'Station' },
-      { path: 'pricing', model: 'Pricing' },
-    ],
-  });
+  return query
+    .populate({
+      path: 'chargingPoint',
+      populate: [
+        { path: 'station', model: 'Station' },
+        { path: 'pricing', model: 'Pricing' },
+      ],
+    })
+    .populate({
+      path: 'user',
+      model: 'User',
+      select: 'vehicleType vehicleName vehicleImageUrl',
+    });
 };
 
-const toBookingResponse = (booking: IBooking): UserBookingResponse => {
+const getChargingSummary = async (
+  bookingId: string
+): Promise<UserBookingChargingSummary> => {
+  const session = await ChargingSession.findOne({ booking: bookingId }).sort({
+    createdAt: -1,
+  });
+
+  if (!session) {
+    return {
+      kwhConsumed: 0,
+      amount: 0,
+    };
+  }
+
+  const transaction = await Transaction.findOne({
+    session: session._id,
+    type: 'charging_payment',
+    status: 'success',
+  }).sort({ createdAt: -1 });
+
+  return {
+    kwhConsumed: Number(session.kwhConsumed || 0),
+    amount: Number(transaction?.amount || 0),
+  };
+};
+
+const toBookingResponse = async (booking: IBooking): Promise<UserBookingResponse> => {
   const chargingPoint = (booking as unknown as {
     chargingPoint: IChargingPoint & { station?: IStation | null; pricing?: IPricing | null };
   }).chargingPoint;
+  const user = (booking as unknown as {
+    user: Pick<IUser, 'vehicleType' | 'vehicleName' | 'vehicleImageUrl'> | null;
+  }).user;
+
+  const chargingSummary = await getChargingSummary(booking._id.toString());
 
   return {
     id: booking._id.toString(),
     startTime: booking.startTime,
     endTime: booking.endTime,
     status: booking.status,
+    vehicle: {
+      type: user?.vehicleType || 'motorbike',
+      name: user?.vehicleName || '',
+      imageUrl: user?.vehicleImageUrl || '',
+    },
+    chargingSummary,
     chargingPoint: {
       id: chargingPoint._id.toString(),
       code: chargingPoint.code,
@@ -88,6 +150,9 @@ const toBookingResponse = (booking: IBooking): UserBookingResponse => {
             id: chargingPoint.station._id.toString(),
             name: chargingPoint.station.name,
             address: chargingPoint.station.address,
+            city: chargingPoint.station.city || '',
+            district: chargingPoint.station.district || '',
+            location: chargingPoint.station.location || null,
           }
         : null,
     },
@@ -119,7 +184,7 @@ export const listUserBookings = async (
   ]);
 
   return {
-    items: items.map(toBookingResponse),
+    items: await Promise.all(items.map(toBookingResponse)),
     pagination: {
       page: params.page,
       limit: params.limit,

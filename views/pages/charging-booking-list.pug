@@ -1,0 +1,34 @@
+extends ./_charging-shell-page.pug
+
+block management_title
+  | Lich su dat lich
+
+block management_lead
+  | Bao cao lich da dat, loc theo thoi gian va trang thai, xem chi tiet va huy lich khi con hop le.
+
+block management_content
+  section.management-card.booking-history-panel
+    .management-panel-header
+      div
+        h2 Lich su dat lich
+        p Hien thi danh sach lich da dat, tim kiem theo thoi gian bat dau, thoi gian ket thuc va trang thai.
+    .booking-history-filter-grid
+      .management-form-field
+        label(for='bookingHistoryStartFilter') Thoi gian bat dau
+        input#bookingHistoryStartFilter(type='datetime-local')
+      .management-form-field
+        label(for='bookingHistoryEndFilter') Thoi gian ket thuc
+        input#bookingHistoryEndFilter(type='datetime-local')
+      .management-form-field
+        label(for='bookingHistoryStatusFilter') Trang thai
+        select#bookingHistoryStatusFilter
+          option(value='all') Tat ca
+          option(value='pending') Cho xac nhan
+          option(value='confirmed') Da dat
+          option(value='completed') Hoan thanh
+          option(value='cancelled') Da huy
+      .station-admin-search-actions
+        button.primary-btn(type='button', data-action='apply-booking-history-search') Tim kiem
+        button.outline-btn(type='button', data-action='reset-booking-history-search') Dat lai
+    .management-table-card
+      p.management-empty Dang tai lich su dat lich...

@@ -19,7 +19,7 @@ function setRegisterStatus(message, isError = false) {
 }
 
 function redirectByRole(user) {
-  window.location.href = "/dashboard";
+  window.location.href = "/";
 }
 
 async function verifyExistingAdminSession() {
@@ -87,7 +87,7 @@ if (registerSubmitBtn) {
 
       localStorage.setItem(registerTokenKey, data.token);
       localStorage.setItem(registerProfileKey, JSON.stringify(data.user || {}));
-      setRegisterStatus("Dang ky thanh cong. Dang chuyen vao dashboard...");
+      setRegisterStatus("Dang ky thanh cong. Dang chuyen vao trang chu quan tri...");
       redirectByRole(data.user);
     } catch (error) {
       setRegisterStatus(
