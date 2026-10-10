@@ -6,6 +6,9 @@ export interface IChargingConnectorType extends Document {
   shortName: string;
   chargingType: string;
   currentType: string;
+  vehicleTypes: string[];
+  powerMinKw: number;
+  powerMaxKw: number;
   description: string;
   image: string;
   createdById: string | null;
@@ -25,6 +28,9 @@ const chargingConnectorTypeSchema = new Schema<IChargingConnectorType>(
     },
     chargingType: { type: String, required: true, trim: true },
     currentType: { type: String, required: true, trim: true },
+    vehicleTypes: { type: [String], default: [] },
+    powerMinKw: { type: Number, default: 0, min: 0 },
+    powerMaxKw: { type: Number, default: 0, min: 0 },
     description: { type: String, default: '', trim: true },
     image: { type: String, default: '' },
     createdById: { type: String, default: null, index: true },

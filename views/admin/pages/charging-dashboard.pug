@@ -1,0 +1,97 @@
+extends ./_charging-shell-page.pug
+
+block head
+  link(rel='stylesheet', href='/admin/assets/css/dashboard.css')
+  link(rel='stylesheet', href='/admin/assets/css/dashboard-overrides.css')
+
+block management_title
+  | Dashboard tram sac
+
+block management_lead
+  | Theo doi tinh trang mang luoi, cong suat va hoat dong sac tai Ha Noi.
+
+block management_content
+  .dashboard-workspace
+    .dashboard-heading
+      div
+        p.eyebrow TONG QUAN VAN HANH
+        h2 Dashboard tram sac
+        p.lead Theo doi tinh trang mang luoi, cong suat va hoat dong sac tai Ha Noi.
+      .dashboard-actions
+        button#dashboardRefreshBtn.outline-btn(type='button') Lam moi du lieu
+    #dashboardStatus.status-box(hidden)
+    .dashboard-kpi-grid
+      article.dashboard-kpi-card
+        span.dashboard-kpi-label Tong tram sac
+        strong#dashboardStationCount 0
+        small#dashboardStationTrend --
+      article.dashboard-kpi-card
+        span.dashboard-kpi-label Cong sac
+        strong#dashboardPointCount 0
+        small#dashboardPointAvailability --
+      article.dashboard-kpi-card
+        span.dashboard-kpi-label Dang sac
+        strong#dashboardActiveSessions 0
+        small Phien dang hoat dong
+      article.dashboard-kpi-card.dashboard-kpi-accent
+        span.dashboard-kpi-label Dien nang hom nay
+        strong#dashboardEnergyToday 0 kWh
+        small Du lieu tu telemetry
+      article.dashboard-kpi-card.dashboard-kpi-revenue
+        span.dashboard-kpi-label Doanh thu hom nay
+        strong#dashboardRevenueToday 0 VND
+        small Tu cac phien sac da thanh toan
+    .dashboard-grid.dashboard-grid-main
+      section.dashboard-panel.dashboard-chart-panel
+        .dashboard-panel-heading
+          div
+            h2 Hoat dong sac theo ngay
+            p Tong phien sac va dien nang tieu thu trong 7 ngay gan nhat.
+          select#dashboardPeriod.dashboard-select
+            option(value='7') 7 ngay
+            option(value='30') 30 ngay
+        .dashboard-chart-wrap
+          canvas#dashboardActivityChart(aria-label='Bieu do hoat dong sac')
+      section.dashboard-panel.dashboard-status-panel
+        .dashboard-panel-heading
+          div
+            h2 Trang thai cong sac
+            p Cap nhat theo du lieu hien tai.
+        .dashboard-donut-layout
+          .dashboard-donut#dashboardStatusDonut
+            strong#dashboardAvailabilityPercent 0%
+            span San sang
+          .dashboard-legend#dashboardStatusLegend
+    .dashboard-grid.dashboard-grid-bottom
+      section.dashboard-panel.dashboard-revenue-panel
+        .dashboard-panel-heading
+          div
+            h2 Doanh thu theo ngay
+            p Tong tien tu cac phien sac da hoan tat trong 7 ngay gan nhat.
+        .dashboard-chart-wrap.dashboard-revenue-chart-wrap
+          canvas#dashboardRevenueChart(aria-label='Bieu do doanh thu theo ngay')
+      section.dashboard-panel
+        .dashboard-panel-heading
+          div
+            h2 Tram can chu y
+            p Tram dang bao tri hoac co van de van hanh.
+          a.dashboard-text-link(href='/admin/stations/list') Xem tat ca
+        #dashboardAttentionList.dashboard-attention-list
+          p.dashboard-empty Dang tai du lieu...
+      section.dashboard-panel
+        .dashboard-panel-heading
+          div
+            h2 Phien sac gan day
+            p Nhung hoat dong moi nhat tren he thong.
+          a.dashboard-text-link(href='/admin/reports/bookings') Xem bao cao
+        .dashboard-table-scroll
+          table.dashboard-table
+            thead
+              tr
+                th Tram / cong
+                th Trang thai
+                th Dien nang
+                th Thoi gian
+            tbody#dashboardSessionRows
+              tr
+                td(colspan='4').dashboard-empty Dang tai du lieu...

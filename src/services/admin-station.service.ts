@@ -1,4 +1,6 @@
-import ChargingPoint from '../models/ChargingPoint';
+import mongoose from 'mongoose';
+import ChargingPoint, { ChargingPointStatus, ConnectorType } from '../models/ChargingPoint';
+import Pricing from '../models/Pricing';
 import Station, { IStation, StationStatus } from '../models/Station';
 import {
   ImportResult,
@@ -28,6 +30,7 @@ interface StationPayload {
   status?: StationStatus;
   chargingType?: string;
   currentType?: string;
+  connectorTypes?: string[];
   isActivated?: boolean;
   activatedAt?: Date | null;
   warrantyUntil?: Date | null;
@@ -37,6 +40,26 @@ interface StationPayload {
   supportPhone?: string;
   open24_7?: boolean;
   amenities?: string[];
+}
+
+export interface StationChargingPointPayload {
+  pricingId: string;
+  code: string;
+  connectorType: ConnectorType;
+  outputCurrentType?: string;
+  inputSupply?: string;
+  maxOutputCurrentA?: number | null;
+  description?: string;
+  powerKw: number;
+  maxOutputVoltage?: string;
+  multiPortEnabled?: boolean;
+  positionLabel?: string;
+  status?: ChargingPointStatus;
+}
+
+export interface AdminStationWithChargingPointsResponse {
+  station: AdminStationResponse;
+  chargingPoints: string[];
 }
 
 export interface AdminStationResponse {
@@ -54,6 +77,7 @@ export interface AdminStationResponse {
   status: StationStatus;
   chargingType: string;
   currentType: string;
+  connectorTypes: string[];
   isActivated: boolean;
   activatedAt: Date | null;
   warrantyUntil: Date | null;
@@ -98,6 +122,7 @@ type NormalizedStationRow = {
   status: StationStatus;
   chargingType: string;
   currentType: string;
+  connectorTypes: string[];
   isActivated: boolean;
   activatedAt: Date | null | undefined;
   warrantyUntil: Date | null | undefined;
@@ -121,6 +146,7 @@ const toStationResponse = (station: IStation): AdminStationResponse => ({
   status: station.status,
   chargingType: station.chargingType || '',
   currentType: station.currentType || '',
+  connectorTypes: Array.isArray(station.connectorTypes) ? station.connectorTypes : [],
   isActivated: Boolean(station.isActivated),
   activatedAt: station.activatedAt || null,
   warrantyUntil: station.warrantyUntil || null,
@@ -197,6 +223,7 @@ const normalizeStationRow = (
   const status = parseStationStatus(row.status);
   const chargingType = parseStringField(row.chargingType || row.charging_type);
   const currentType = parseStringField(row.currentType || row.current_type);
+  const connectorTypes = parseAmenitiesField(row.connectorTypes || row.connector_types) || [];
   const isActivated = parseBooleanField(row.isActivated || row.activated || row.active);
   const activatedAt = parseDateField(row.activatedAt || row.activationDate || row.activation_date);
   const warrantyUntil = parseDateField(row.warrantyUntil || row.warranty_date || row.warrantyDate);
@@ -222,6 +249,7 @@ const normalizeStationRow = (
     status,
     chargingType,
     currentType,
+    connectorTypes,
     isActivated,
     activatedAt,
     warrantyUntil,
@@ -329,6 +357,7 @@ export const createAdminStation = async (
     status: payload.status || 'active',
     chargingType: payload.chargingType?.trim() || '',
     currentType: payload.currentType?.trim() || '',
+    connectorTypes: Array.isArray(payload.connectorTypes) ? payload.connectorTypes : [],
     isActivated: Boolean(payload.isActivated),
     activatedAt: payload.activatedAt ?? null,
     warrantyUntil: payload.warrantyUntil ?? null,
@@ -341,6 +370,89 @@ export const createAdminStation = async (
   });
 
   return toStationResponse(station);
+};
+
+export const createAdminStationWithChargingPoints = async (
+  payload: StationPayload,
+  chargingPoints: StationChargingPointPayload[]
+): Promise<AdminStationWithChargingPointsResponse> => {
+  const session = await mongoose.startSession();
+  let response: AdminStationWithChargingPointsResponse | null = null;
+
+  try {
+    await session.withTransaction(async () => {
+      const [station] = await Station.create([{
+        imei: payload.imei?.trim() || '',
+        name: payload.name,
+        address: payload.address,
+        city: payload.city?.trim() || '',
+        district: payload.district?.trim() || '',
+        description: payload.description?.trim() || '',
+        location: payload.location,
+        status: payload.status || 'active',
+        chargingType: payload.chargingType?.trim() || '',
+        currentType: payload.currentType?.trim() || '',
+        connectorTypes: Array.isArray(payload.connectorTypes) ? payload.connectorTypes : [],
+        isActivated: Boolean(payload.isActivated),
+        activatedAt: payload.activatedAt ?? null,
+        warrantyUntil: payload.warrantyUntil ?? null,
+        simType: payload.simType?.trim() || '',
+        simNumber: payload.simNumber?.trim() || '',
+        billingSimNumber: payload.billingSimNumber?.trim() || '',
+        supportPhone: payload.supportPhone?.trim() || '',
+        open24_7: Boolean(payload.open24_7),
+        amenities: Array.isArray(payload.amenities) ? payload.amenities : [],
+      }], { session });
+
+    const codes = chargingPoints.map((point) => point.code.trim());
+    const uniqueCodes = new Set(codes);
+    if (uniqueCodes.size !== codes.length) {
+      throw new Error('Ma cong sac trong cung tram khong duoc trung');
+    }
+
+    const existingCode = await ChargingPoint.findOne({ code: { $in: codes } }).select('code').session(session);
+    if (existingCode) {
+      throw new Error(`Ma cong sac da ton tai: ${existingCode.code}`);
+    }
+
+    const pricingIds = [...new Set(chargingPoints.map((point) => point.pricingId))];
+    const pricingCount = await Pricing.countDocuments({ _id: { $in: pricingIds } }).session(session);
+    if (pricingCount !== pricingIds.length) {
+      throw new Error('Mot hoac nhieu bang gia cua cong sac khong ton tai');
+    }
+
+    const created = await ChargingPoint.insertMany(
+      chargingPoints.map((point) => ({
+        station: station._id,
+        pricing: point.pricingId,
+        code: point.code.trim(),
+        connectorType: point.connectorType,
+        outputCurrentType: point.outputCurrentType?.trim() || '',
+        inputSupply: point.inputSupply?.trim() || '',
+        maxOutputCurrentA: point.maxOutputCurrentA ?? null,
+        description: point.description?.trim() || '',
+        powerKw: point.powerKw,
+        maxOutputVoltage: point.maxOutputVoltage?.trim() || '',
+        multiPortEnabled: Boolean(point.multiPortEnabled),
+        positionLabel: point.positionLabel?.trim() || '',
+        status: point.status || 'available',
+      }))
+    , { session });
+
+      response = {
+      station: toStationResponse(station),
+      chargingPoints: created.map((point) => point._id.toString()),
+      };
+    });
+  } finally {
+    await session.endSession();
+  }
+
+  if (!response) {
+    throw new Error('Khong the tao tram sac va cong sac');
+  }
+
+  return response;
 };
 
 export const updateAdminStation = async (
@@ -360,6 +472,7 @@ export const updateAdminStation = async (
       status: payload.status || 'active',
       chargingType: payload.chargingType?.trim() || '',
       currentType: payload.currentType?.trim() || '',
+      connectorTypes: Array.isArray(payload.connectorTypes) ? payload.connectorTypes : [],
       isActivated: Boolean(payload.isActivated),
       activatedAt: payload.activatedAt ?? null,
       warrantyUntil: payload.warrantyUntil ?? null,
@@ -436,6 +549,7 @@ export const importAdminStations = async (
       existingStation.status = normalizedRow.status;
       existingStation.chargingType = normalizedRow.chargingType;
       existingStation.currentType = normalizedRow.currentType;
+      existingStation.connectorTypes = normalizedRow.connectorTypes;
       existingStation.isActivated = normalizedRow.isActivated;
       existingStation.activatedAt = normalizedRow.activatedAt ?? null;
       existingStation.warrantyUntil = normalizedRow.warrantyUntil ?? null;

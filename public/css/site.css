@@ -604,6 +604,7 @@ h1 {
 
 .map-page .app-shell {
   min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   font-family: "Segoe UI", Tahoma, Arial, sans-serif;
@@ -611,6 +612,7 @@ h1 {
 
 .map-page .app-header {
   min-height: 64px;
+  flex: 0 0 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -618,7 +620,8 @@ h1 {
   padding: 0 22px;
   background: var(--map-card);
   border-bottom: 1px solid var(--map-line);
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 30;
 }
 
@@ -798,11 +801,14 @@ h1 {
 }
 
 .map-page .app-sidebar {
-  width: 176px;
-  flex: 0 0 176px;
+  width: 214px;
+  flex: 0 0 214px;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: 100%;
+  position: sticky;
+  top: 0;
   overflow: hidden;
   background: var(--map-card);
   border-right: 1px solid var(--map-line);
@@ -1017,6 +1023,20 @@ h1 {
   flex: 1;
   padding: 22px 24px 28px;
   overflow: auto;
+}
+
+.map-page .app-footer {
+  min-height: 28px;
+  flex: 0 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 18px;
+  color: var(--map-muted);
+  background: var(--map-card);
+  border-top: 1px solid var(--map-line);
+  font-size: 0.68rem;
 }
 
 .map-page .management-workspace {
@@ -3433,6 +3453,7 @@ h1 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 310px;
   gap: 14px;
+  align-items: stretch;
 }
 
 .map-page .map-panel,
@@ -3447,6 +3468,10 @@ h1 {
 .map-page .map-panel {
   position: relative;
   overflow: hidden;
+  min-height: 0;
+  height: calc(100vh - 236px);
+  display: flex;
+  flex-direction: column;
 }
 
 .map-page .map-stats {
@@ -3476,8 +3501,9 @@ h1 {
 }
 
 .map-page .map-canvas {
-  min-height: 575px;
-  height: calc(100vh - 300px);
+  min-height: 0;
+  height: auto;
+  flex: 1 1 auto;
   background: #dceff2;
 }
 
@@ -3734,6 +3760,9 @@ h1 {
   display: flex;
   flex-direction: column;
   padding: 16px;
+  min-height: 0;
+  height: calc(100vh - 236px);
+  overflow: hidden;
 }
 
 .map-page .results-header h2 {
@@ -3754,8 +3783,12 @@ h1 {
 .map-page .station-list {
   display: grid;
   gap: 9px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
   margin-top: 15px;
+  padding-right: 4px;
+  overscroll-behavior: contain;
 }
 
 .map-page .station-card {
@@ -3805,11 +3838,6 @@ h1 {
   color: #258343;
   font-size: 0.6rem;
   font-weight: 800;
-}
-
-.map-page .station-badge.swap {
-  background: #fff0d9;
-  color: #a76306;
 }
 
 .map-page .station-status-badge {
@@ -3866,10 +3894,6 @@ h1 {
 
 .map-page .marker-pin span {
   transform: rotate(45deg);
-}
-
-.map-page .marker-pin.swap {
-  background: #e69416;
 }
 
 .map-page .marker-pin.ready {
@@ -4544,6 +4568,11 @@ h1 {
   .map-page .map-canvas {
     height: 56vh;
     min-height: 390px;
+    flex: 0 0 auto;
+  }
+
+  .map-page .map-panel {
+    height: auto;
   }
 
   .map-page .station-detail-panel {
@@ -4565,6 +4594,7 @@ h1 {
   }
 
   .map-page .station-results {
+    height: 360px;
     max-height: 360px;
   }
 

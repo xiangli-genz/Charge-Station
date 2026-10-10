@@ -1,0 +1,75 @@
+aside#appSidebar.app-sidebar(data-shell='admin')
+  .sidebar-brand
+    span.sidebar-mark ST
+    div
+      strong Quản trị trạm sạc
+      small Web app
+  nav.app-nav(aria-label='Dieu huong chinh')
+    a.nav-item.dashboard-nav-item(href='/admin/dashboard', data-view='dashboard')
+      span.nav-icon DB
+      span Dashboard
+    button.nav-item(type='button', data-view='map')
+      span.nav-icon Map
+      span(data-i18n='map') Bản đồ
+    button.nav-item(type='button', data-view='stations')
+      span.nav-icon ST
+      span(data-i18n='stations') Trạm sạc
+    button.nav-item(type='button', data-view='notifications')
+      span.nav-icon NT
+      span(data-i18n='notifications') Thông báo
+    button#managementNavToggle.nav-item.nav-item-expand(type='button', aria-expanded='false')
+      span.nav-icon QL
+      span Quản lý
+      span.nav-caret(aria-hidden='true')
+    .nav-submenu#managementNavSubmenu(hidden)
+      button.nav-subitem(type='button', data-view='accounts')
+        span Tài khoản
+      .nav-subgroup
+        button#stationNavToggle.nav-subitem.nav-subitem-expand(type='button', aria-expanded='false')
+          span Trạm sạc
+          span.nav-caret(aria-hidden='true')
+        .nav-submenu.nav-submenu-nested#stationNavSubmenu(hidden)
+          button.nav-subitem.nav-subitem-nested(type='button', data-view='station-map')
+            span Bản đồ
+          button.nav-subitem.nav-subitem-nested(type='button', data-view='station-info')
+            span Thông tin
+      button.nav-subitem(type='button', data-view='charging-points')
+        span Cổng sạc
+      button.nav-subitem(type='button', data-view='pricings')
+        span Giá dịch vụ
+    button#reportNavToggle.nav-item.nav-item-expand(type='button', aria-expanded='false')
+      span.nav-icon BC
+      span Báo cáo
+      span.nav-caret(aria-hidden='true')
+    .nav-submenu#reportNavSubmenu(hidden)
+      button.nav-subitem(type='button', data-view='report-summary')
+        span Báo cáo tổng hợp
+      button.nav-subitem(type='button', data-view='station-distribution')
+        span Phân bổ trạm sạc
+      button.nav-subitem(type='button', data-view='bookings')
+        span Lịch sử đặt lịch
+    button#systemNavToggle.nav-item.nav-item-expand(type='button', aria-expanded='false')
+      span.nav-icon HT
+      span Cấu hình hệ thống
+      span.nav-caret(aria-hidden='true')
+    .nav-submenu#systemNavSubmenu(hidden)
+      button.nav-subitem(type='button', data-view='roles')
+        span Vai trò
+      button.nav-subitem(type='button', data-view='permissions')
+        span Quyền
+      button.nav-subitem(type='button', data-view='login-pages')
+        span Trang đăng nhập
+      button.nav-subitem(type='button', data-view='sim-types')
+        span Loại sim
+    button#deviceConfigNavToggle.nav-item.nav-item-expand(type='button', aria-expanded='false')
+      span.nav-icon TB
+      span Cấu hình thiết bị
+      span.nav-caret(aria-hidden='true')
+    .nav-submenu#deviceConfigNavSubmenu(hidden)
+      button.nav-subitem(type='button', data-view='device-types')
+        span Loại thiết bị
+      button.nav-subitem(type='button', data-view='connector-types')
+        span Loại cổng sạc
+  .sidebar-footer
+    span.status-dot
+    span#mapConnectionStatus Dang ket noi du lieu...

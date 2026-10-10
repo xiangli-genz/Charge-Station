@@ -9,6 +9,9 @@ export interface ChargingConnectorTypeResponse {
   shortName: string;
   chargingType: string;
   currentType: string;
+  vehicleTypes: string[];
+  powerMinKw: number;
+  powerMaxKw: number;
   description: string;
   image: string;
   createdById: string | null;
@@ -21,6 +24,9 @@ interface ChargingConnectorTypePayload {
   shortName: string;
   chargingType: string;
   currentType: string;
+  vehicleTypes?: string[];
+  powerMinKw?: number;
+  powerMaxKw?: number;
   description?: string;
   image?: string;
   createdById?: string | null;
@@ -36,6 +42,9 @@ const toChargingConnectorTypeResponse = (
   shortName: item.shortName,
   chargingType: item.chargingType,
   currentType: item.currentType,
+  vehicleTypes: item.vehicleTypes || [],
+  powerMinKw: item.powerMinKw || 0,
+  powerMaxKw: item.powerMaxKw || 0,
   description: item.description || '',
   image: normalizeMediaUrl(item.image || ''),
   createdById: item.createdById ?? null,
@@ -86,6 +95,9 @@ export const createChargingConnectorType = async (
     shortName,
     chargingType: payload.chargingType,
     currentType: payload.currentType,
+    vehicleTypes: payload.vehicleTypes || [],
+    powerMinKw: payload.powerMinKw || 0,
+    powerMaxKw: payload.powerMaxKw || 0,
     description: payload.description || '',
     image,
     createdById: payload.createdById ?? null,
@@ -118,6 +130,9 @@ export const updateChargingConnectorType = async (
   item.shortName = shortName;
   item.chargingType = payload.chargingType;
   item.currentType = payload.currentType;
+  item.vehicleTypes = payload.vehicleTypes || [];
+  item.powerMinKw = payload.powerMinKw || 0;
+  item.powerMaxKw = payload.powerMaxKw || 0;
   item.description = payload.description || '';
   item.image = image;
   await item.save();

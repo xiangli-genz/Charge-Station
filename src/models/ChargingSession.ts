@@ -32,4 +32,11 @@ const chargingSessionSchema = new Schema<IChargingSession>(
   { timestamps: true }
 );
 
+chargingSessionSchema.index({ user: 1, startedAt: -1 });
+chargingSessionSchema.index(
+  { chargingPoint: 1, status: 1 },
+  { unique: true, partialFilterExpression: { status: 'charging' } }
+);
+chargingSessionSchema.index({ booking: 1 });
+
 export default model<IChargingSession>('ChargingSession', chargingSessionSchema);

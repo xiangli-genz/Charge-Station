@@ -7,6 +7,10 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "seed:hanoi": "ts-node --transpile-only tools/seed-hanoi-stations.ts",
+    "seed:connector-types": "ts-node --transpile-only tools/seed-connector-types.ts",
+    "seed:device-types": "ts-node --transpile-only tools/seed-device-types.ts",
+    "backfill:station-connectors": "ts-node --transpile-only tools/backfill-station-connector-types.ts",
     "test:smoke": "npm run build && node --test dist/tests/smoke/index.test.js"
   },
   "dependencies": {

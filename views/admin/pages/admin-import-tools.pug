@@ -1,0 +1,73 @@
+extends ../layouts/main
+
+block content
+  .shell
+    .editor-topbar
+      div
+        p.sidebar-title Admin Tool
+        h1 Import du lieu hang loat
+        p#pageLead Upload CSV/JSON de them hoac cap nhat du lieu tram sac trong he thong.
+      .editor-topbar-actions
+        a.btn.ghost(href='/admin-tools') Quan ly danh sach
+        a.btn.ghost(href='/') Trang chu
+
+    .grid
+      section.card
+        h2 Import tu file
+        label(for='dataset') Loai du lieu
+        select#dataset
+          option(value='stations') Tram sac
+          option(value='pricings') Bang gia
+          option(value='charging-points') Cong sac
+
+        .row
+          div
+            label(for='format') Dinh dang
+            select#format
+              option(value='csv') CSV
+              option(value='json') JSON
+          div
+            label(for='mode') Che do
+            select#mode
+              option(value='upsert') Upsert
+              option(value='insert') Insert only
+
+        label(for='fileInput') Chon file
+        input#fileInput(type='file', accept='.csv,.json,application/json,text/csv')
+
+        .row(style='margin-top: 16px;')
+          button#importBtn Import du lieu
+          button#clearBtn.secondary(type='button') Xoa noi dung
+
+        ul.hint-list
+          li Nen tao `pricings` truoc `charging-points`.
+          li Nen tao `stations` truoc `charging-points`.
+          li Booking duoc tao tai trang form rieng, khong import trong tool nay.
+
+      section.card
+        h2 Xem truoc va ket qua
+        label(for='content') Noi dung file
+        textarea#content(placeholder='Noi dung file CSV hoac JSON se xuat hien o day')
+
+        #resultPanel(style='margin-top: 20px;')
+          .meta
+            .box
+              div Tao moi
+              #createdCount.value 0
+            .box
+              div Cap nhat
+              #updatedCount.value 0
+            .box
+              div Bo qua
+              #skippedCount.value 0
+            .box
+              div Loi
+              #errorCount.value 0
+
+          #importStatus.status Chua co ket qua xu ly.
+
+          h2(style='margin-top: 20px;') Phan hoi API
+          pre#resultJson {}
+
+block scripts
+  script(src='/admin/assets/js/admin-import-tools.js')

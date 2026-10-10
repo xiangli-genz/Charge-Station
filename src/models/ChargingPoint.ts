@@ -18,6 +18,9 @@ export interface IChargingPoint extends Document {
   multiPortEnabled: boolean;
   positionLabel: string;
   status: ChargingPointStatus;
+  online: boolean;
+  lastHeartbeatAt: Date | null;
+  lastErrorCode: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,6 +48,9 @@ const chargingPointSchema = new Schema<IChargingPoint>(
       enum: ['available', 'occupied', 'reserved', 'maintenance'],
       default: 'available',
     },
+    online: { type: Boolean, default: false, index: true },
+    lastHeartbeatAt: { type: Date, default: null, index: true },
+    lastErrorCode: { type: String, default: '' },
   },
   { timestamps: true }
 );

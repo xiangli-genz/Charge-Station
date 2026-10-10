@@ -1,0 +1,90 @@
+extends ../layouts/main
+
+block content
+  main.dashboard-shell.user-tree-shell
+    .topbar
+      a.brand(href='/') Tram Sac Hub
+      .nav-actions
+        a.btn.ghost(href='/') Trang chu
+        a.btn.ghost(href='/admin-tools') Admin tools
+        button#userTreeLogoutBtn.btn.primary(type='button') Dang xuat
+
+    .dashboard-hero
+      section.panel.soft
+        p.eyebrow User Tree
+        h1 Cay nguoi dung quan tri
+        p.lead Theo doi toan bo tai khoan con duoc tao trong nhanh quan ly cua ban, sau do sua nhanh thong tin, tao them user con va xoa khi can.
+        #userTreeStatus.status-box Dang tai du lieu cay nguoi dung...
+
+      section.panel
+        h2 Tai khoan goc
+        .stack
+          div
+            strong Ho ten:
+            span#rootAdminName  --
+          div
+            strong Email:
+            span#rootAdminEmail  --
+          div
+            strong Vai tro:
+            span#rootAdminRole  --
+          div
+            strong Tong so user con:
+            span#rootAdminTotal  0
+
+    .user-tree-layout
+      aside.panel.user-tree-sidebar
+        .user-tree-sidebar-head
+          h2 Cay thu muc
+          p.helper Chon mot node de xem danh sach tai khoan con truc tiep o khung ben phai.
+        #userTreeRoot.user-tree-root
+        #userTreeTree.user-tree-tree
+
+      section.panel.user-tree-manager
+        .manager-toolbar.user-tree-toolbar
+          .manager-heading
+            p.sidebar-title Quan ly tai khoan con
+            h2#userTreeSelectedLabel Nhanh hien tai
+            p#userTreeSelectedMeta.helper Dang tai thong tin nhanh...
+          .manager-actions
+            input#userTreeSearch.text-input(type='text', placeholder='Tim theo ho ten, email, so dien thoai hoac vai tro')
+            .manager-buttons
+              button#userTreeRefreshBtn.btn.ghost(type='button') Lam moi
+              button#userTreeCreateBtn.btn.primary(type='button') Tao tai khoan con
+
+        p#userTreeCount.helper 0 tai khoan con truc tiep
+        #userTreeList.user-tree-list
+
+        form#userTreeForm.user-tree-form
+          .user-tree-form-head
+            div
+              h3#userTreeFormTitle Tao tai khoan con
+              p#userTreeFormLead.helper Tai khoan moi se duoc gan vao nhanh dang chon.
+            .user-tree-form-actions
+              button#userTreeCancelBtn.btn.ghost(type='button') Huy chinh sua
+              button#userTreeSubmitBtn.btn.primary(type='submit') Luu tai khoan
+
+          input#userTreeEditingId(type='hidden')
+
+          .user-tree-form-grid
+            .profile-field
+              label(for='childFullName') Ho ten *
+              input#childFullName.text-input(type='text', required=true, placeholder='Nguyen Van A')
+            .profile-field
+              label(for='childPhone') So dien thoai *
+              input#childPhone.text-input(type='text', required=true, placeholder='0901234567')
+            .profile-field
+              label(for='childEmail') Email *
+              input#childEmail.text-input(type='email', required=true, placeholder='user@example.com')
+            .profile-field
+              label(for='childWalletBalance') So du vi
+              input#childWalletBalance.text-input(type='number', min='0', step='1000', value='0')
+            .profile-field.profile-field-wide
+              label(for='childPassword') Mat khau *
+              input#childPassword.text-input(type='password', required=true, placeholder='Nhap mat khau cho tai khoan con')
+            .profile-field.profile-field-wide
+              label(for='userTreeParentPreview') Gan vao nhanh
+              input#userTreeParentPreview.text-input(type='text', readonly=true, value='Dang tai...')
+
+block scripts
+  script(src='/admin/assets/js/admin-users.js')

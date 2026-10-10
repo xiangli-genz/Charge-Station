@@ -1,0 +1,26 @@
+header.app-header
+  .header-left
+    button#sidebarToggle.icon-btn(type='button', aria-label='Mo menu') Menu
+    a.app-logo(href='/admin/dashboard') S.TOUCH
+    button#themeToggle.theme-toggle(type='button', aria-label='Doi giao dien')
+      span#themeLabel Light
+  .header-actions
+    .header-search-wrap
+      button#searchToggle.icon-btn(type='button', aria-label='Tim kiem') Search
+      input#headerSearch.header-search(type='search', placeholder='Tim tram, dia chi...')
+    .header-menu-wrap
+      button#notificationToggle.icon-btn(type='button', aria-label='Thong bao') Bell
+      .floating-menu.notification-menu#notificationMenu
+        strong Thong bao
+        p#notificationEmpty Chua co thong bao moi.
+    button#languageToggle.language-toggle(type='button') VI
+    .profile-wrap
+      button#profileToggle.profile-trigger(type='button', aria-label='Mo ho so')
+        span#avatarInitials.avatar NK
+        span.profile-copy
+          strong#profileName Nguoi dung
+          small#profileWallet Vi: 0 VND
+      .floating-menu.profile-menu#profileMenu
+        strong#profileMenuName Nguoi dung
+        button#profileAction(type='button') Ho so ca nhan
+        button#logoutAction.secondary(type='button') Dang xuat

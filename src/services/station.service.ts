@@ -306,3 +306,46 @@ export const searchStations = async (
     },
   };
 };
+
+export const getStationDetails = async (stationId: string): Promise<StationSearchItem> => {
+  const station = await Station.findById(stationId);
+  if (!station) throw new Error('Tram sac khong ton tai');
+
+  const points = await ChargingPoint.find({ station: station._id })
+    .populate('pricing', 'name pricePerKwh pricePerMinute');
+  const matchingChargingPoints = points.map((point: any) => ({
+    _id: point._id.toString(), code: point.code, connectorType: point.connectorType,
+    powerKw: point.powerKw, status: point.status,
+    pricing: point.pricing?._id ? {
+      id: point.pricing._id.toString(), name: point.pricing.name || 'Bang gia mac dinh',
+      pricePerKwh: point.pricing.pricePerKwh || 0, pricePerMinute: point.pricing.pricePerMinute || 0,
+    } : undefined,
+  }));
+
+  return {
+    _id: station._id.toString(), imei: station.imei || '', name: station.name,
+    address: station.address, city: station.city || '', district: station.district || '',
+    location: station.location, status: station.status, open24_7: station.open24_7,
+    totalChargingPoints: points.length,
+    availableChargingPoints: points.filter((point) => point.status === 'available').length,
+    matchingChargingPoints, createdAt: station.createdAt, updatedAt: station.updatedAt,
+  };
+};
+
+const distanceKm = (from: { lat: number; lng: number }, to: { lat: number; lng: number }): number => {
+  const radians = (value: number) => (value * Math.PI) / 180;
+  const latDelta = radians(to.lat - from.lat);
+  const lngDelta = radians(to.lng - from.lng);
+  const a = Math.sin(latDelta / 2) ** 2
+    + Math.cos(radians(from.lat)) * Math.cos(radians(to.lat)) * Math.sin(lngDelta / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
+export const findNearbyStations = async (params: { lat: number; lng: number; radiusKm: number; limit: number }) => {
+  const result = await searchStations({ status: 'active', page: 1, limit: 1000 });
+  return result.items
+    .map((station) => ({ ...station, distanceKm: Number(distanceKm({ lat: params.lat, lng: params.lng }, station.location).toFixed(3)) }))
+    .filter((station) => station.distanceKm <= params.radiusKm)
+    .sort((left, right) => left.distanceKm - right.distanceKm)
+    .slice(0, params.limit);
+};

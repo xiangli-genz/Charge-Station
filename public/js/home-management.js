@@ -7,7 +7,6 @@
     "charging-points",
     "pricings",
     "report-summary",
-    "manage-swap",
     "station-distribution",
     "bookings",
     "roles",
@@ -18,13 +17,49 @@
     "connector-types"
   ]);
 
+  const isAdminShell = window.TRAM_SAC_CONFIG?.shellRole === "admin";
+  const viewPaths = {
+    map: isAdminShell ? "/admin/dashboard" : "/",
+    stations: "/stations",
+    notifications: "/notifications",
+    accounts: "/admin/accounts",
+    "station-map": "/admin/stations/map",
+    "station-info": "/admin/stations/list",
+    "charging-points": "/admin/charging-points",
+    pricings: "/admin/pricings",
+    "report-summary": "/admin/reports/summary",
+    bookings: "/admin/reports/bookings",
+    "station-distribution": "/admin/reports/station-distribution",
+    roles: "/admin/system/roles",
+    permissions: "/admin/system/permissions",
+    "login-pages": "/admin/system/login-pages",
+    "sim-types": "/admin/system/sim-types",
+    "device-types": "/admin/device-config/device-types",
+    "connector-types": "/admin/device-config/connector-types"
+  };
+
+  const pathViews = Object.entries(viewPaths).reduce((result, [view, path]) => {
+    result[path] = view;
+    return result;
+  }, {});
+
+  function syncViewUrl(view, replace = false) {
+    const path = viewPaths[view];
+
+    if (!path || window.location.pathname === path) {
+      return;
+    }
+
+    const method = replace ? "replaceState" : "pushState";
+    window.history[method]({ view }, "", path);
+  }
+
   const entityPanelMap = {
     "station-map": "stations",
     "station-info": "stations",
     "manage-stations": "stations",
     "charging-points": "charging-points",
     pricings: "pricings",
-    "manage-swap": "swap-stations",
     bookings: "bookings"
   };
 
@@ -60,11 +95,6 @@
       title: "Giá dịch vụ",
       lead: "Quản lý bảng giá điện theo kWh và theo phút.",
       primaryLabel: "Tạo bảng giá"
-    },
-    "manage-swap": {
-      title: "Trạm đổi pin",
-      lead: "Theo dõi các điểm đổi pin, nhà cung cấp và số lượng ô pin khả dụng.",
-      primaryLabel: "Tạo trạm đổi pin"
     },
     "report-summary": {
       title: "Báo cáo tổng hợp",
@@ -481,7 +511,7 @@
 
   function escapeHtml(value) {
     return String(value ?? "")
-      .replaceAll("&", "&amp;")
+      .replaceAll("&", "&")
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
@@ -4862,31 +4892,6 @@
       ];
     }
 
-    if (panelKey === "swap-stations") {
-      return [
-        {
-          label: "Trạm đổi pin",
-          render(item) {
-            return `<strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(
-              item.provider || "--"
-            )}</small>`;
-          }
-        },
-        {
-          label: "Địa chỉ",
-          render(item) {
-            return escapeHtml(item.address || "--");
-          }
-        },
-        {
-          label: "Trạng thái",
-          render(item) {
-            return renderStatusBadge(item.status);
-          }
-        }
-      ];
-    }
-
     return [
       {
         label: "Khách hàng",
@@ -6659,9 +6664,13 @@
     }
   }
 
-  function switchWorkspace(view) {
+  function switchWorkspace(view, options = {}) {
     const previousPanel = state.currentPanel;
     const isManagement = managementPanels.has(view);
+
+    if (options.syncUrl !== false) {
+      syncViewUrl(view, Boolean(options.replaceUrl));
+    }
 
     if (
       (previousPanel === "station-map" && view !== "station-map") ||
@@ -7346,7 +7355,7 @@
     const action = trigger.dataset.action;
 
     if (action === "open-login") {
-      window.location.href = "/login";
+      window.location.href = "/admin/login";
       return;
     }
 
@@ -7370,7 +7379,7 @@
         return;
       }
 
-      window.location.href = `/admin-editor?panel=${encodeURIComponent(
+      window.location.href = `/admin/editor?panel=${encodeURIComponent(
         trigger.dataset.panel || "pricings"
       )}&id=${encodeURIComponent(trigger.dataset.id || "")}`;
       return;
@@ -8375,7 +8384,7 @@
       const panel = entityPanelMap[state.currentPanel];
 
       if (panel) {
-        window.location.href = `/admin-editor?panel=${encodeURIComponent(panel)}`;
+        window.location.href = `/admin/editor?panel=${encodeURIComponent(panel)}`;
       }
     });
 
@@ -8690,5 +8699,17 @@
   }
 
   bindEvents();
-  switchWorkspace(window.TRAM_SAC_CONFIG?.initialView || "map");
+
+  const initialView =
+    pathViews[window.location.pathname] ||
+    window.TRAM_SAC_CONFIG?.initialView ||
+    "map";
+
+  switchWorkspace(initialView, { syncUrl: true, replaceUrl: true });
+
+  window.addEventListener("popstate", () => {
+    const view = pathViews[window.location.pathname] || "map";
+    switchWorkspace(view, { syncUrl: false });
+    window.dispatchEvent(new CustomEvent("tram-sac:navigation", { detail: { view } }));
+  });
 })();

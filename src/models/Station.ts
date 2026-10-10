@@ -17,6 +17,7 @@ export interface IStation extends Document {
   status: StationStatus;
   chargingType: string;
   currentType: string;
+  connectorTypes: string[];
   isActivated: boolean;
   activatedAt?: Date | null;
   warrantyUntil?: Date | null;
@@ -49,6 +50,7 @@ const stationSchema = new Schema<IStation>(
     },
     chargingType: { type: String, trim: true, default: '' },
     currentType: { type: String, trim: true, default: '' },
+    connectorTypes: { type: [String], default: [] },
     isActivated: { type: Boolean, default: false },
     activatedAt: { type: Date, default: null },
     warrantyUntil: { type: Date, default: null },

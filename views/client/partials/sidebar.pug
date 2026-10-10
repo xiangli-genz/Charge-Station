@@ -1,0 +1,19 @@
+aside#appSidebar.app-sidebar.client-sidebar(data-shell='client')
+  .sidebar-brand
+    span.sidebar-mark ST
+    div
+      strong Tìm trạm sạc
+      small Ứng dụng khách hàng
+  nav.app-nav(aria-label='Dieu huong nguoi dung')
+    button.nav-item.active(type='button', data-view='map')
+      span.nav-icon Map
+      span Bản đồ
+    button.nav-item(type='button', data-view='stations')
+      span.nav-icon ST
+      span Trạm sạc
+    button.nav-item(type='button', data-view='notifications')
+      span.nav-icon NT
+      span Thông báo
+  .sidebar-footer
+    span.status-dot
+    span Sẵn sàng phục vụ

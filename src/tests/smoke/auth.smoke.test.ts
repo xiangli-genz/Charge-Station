@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { authenticate, requireCustomer } from '../../middlewares/auth.middleware';
+import { authenticate, requireCustomer } from '../../middlewares/client/auth.middleware';
 import { AuthRequest } from '../../types/express';
 
 const createMockResponse = () => {

@@ -13,7 +13,6 @@ const translations = {
   vi: {
     map: "Ban do",
     stations: "Tram sac",
-    swap: "Tram doi pin",
     notifications: "Thong bao",
     admin: "Quan tri admin",
     eyebrow: "BAN DO TRAM SAC",
@@ -37,12 +36,10 @@ const translations = {
     refresh: "Lam moi",
     all: "Tat ca",
     charging: "Tram sac",
-    swapOnly: "Tram doi pin",
     available: "Con cho",
     maintenance: "Bao tri",
     listTitleAll: "Danh sach tram",
     listTitleCharging: "Danh sach tram sac",
-    listTitleSwap: "Danh sach tram doi pin",
     mapLoading: "Dang tai ban do...",
     mapReady: "Da cap nhat du lieu ban do.",
     empty: "Khong co tram phu hop voi bo loc hien tai.",
@@ -63,7 +60,6 @@ const translations = {
   en: {
     map: "Map",
     stations: "Charging Stations",
-    swap: "Battery Swap",
     notifications: "Notifications",
     admin: "Admin Panel",
     eyebrow: "CHARGING MAP",
@@ -87,12 +83,10 @@ const translations = {
     refresh: "Refresh",
     all: "All",
     charging: "Charging",
-    swapOnly: "Swap",
     available: "Available",
     maintenance: "Maintenance",
     listTitleAll: "Station list",
     listTitleCharging: "Charging stations",
-    listTitleSwap: "Swap stations",
     mapLoading: "Loading map...",
     mapReady: "Map data updated.",
     empty: "No stations match the current filters.",
@@ -146,23 +140,6 @@ const fallbackStations = [
     totalUnits: 8,
     powerKw: 240,
     detail: "CCS2"
-  },
-  {
-    id: "demo-sw-1",
-    type: "swap",
-    name: "Tram Doi Pin VinFast Tay Ho",
-    address: "Xuan Dieu, Tay Ho, Ha Noi",
-    lat: 21.0665,
-    lng: 105.8304,
-    status: "active",
-    statusKey: "ready",
-    city: "Ha Noi",
-    district: "Tay Ho",
-    connectorTypes: [],
-    availableUnits: 12,
-    totalUnits: 20,
-    powerKw: 0,
-    detail: "VinFast | Evo200, Feliz S"
   },
   {
     id: "demo-st-3",
@@ -357,7 +334,7 @@ const state = {
 
 function escapeHtml(value) {
   return String(value ?? "")
-    .replaceAll("&", "&amp;")
+    .replaceAll("&", "&")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
@@ -505,7 +482,7 @@ function getCurrentType(station) {
   const connectorTypes = station.connectorTypes || [];
 
   if (!connectorTypes.length) {
-    return station.type === "swap" ? "Doi pin" : "--";
+    return station.currentType || "--";
   }
 
   const currentTypes = new Set(
@@ -596,7 +573,7 @@ function renderStationDetail() {
 
   const favoriteIds = getFavoriteStationIds();
   const statusClass = getStatusClass(station.statusKey);
-  const stationType = station.type === "swap" ? "Tram doi pin" : "Tram sac";
+  const stationType = "Tram sac";
 
   els.stationDetailPanel.hidden = false;
   els.stationDetailPanel.classList.add("open");
@@ -700,7 +677,7 @@ function renderStationDetail() {
             `;
           })
           .join("")
-      : '<p class="detail-empty">Tram doi pin khong co cong sac.</p>';
+      : '<p class="detail-empty">Tram sac khong co cong sac.</p>';
   }
 }
 
@@ -1241,7 +1218,6 @@ function applyTranslations() {
   if (els.stationType) {
     els.stationType.options[0].text = getText("all");
     els.stationType.options[1].text = getText("charging");
-    els.stationType.options[2].text = getText("swapOnly");
   }
 
   [els.cityFilter, els.districtFilter, els.connectorTypeFilter].forEach((select) => {
@@ -1376,49 +1352,17 @@ function normalizeChargingStation(item) {
   };
 }
 
-function normalizeSwapStation(item) {
-  const availableUnits = Number(item.availableBatterySlots || 0);
-  const totalUnits = Number(item.totalBatterySlots || 0);
-  const addressParts = splitAddress(item.address);
-
-  return {
-    id: item.id || item._id,
-    type: "swap",
-    name: item.name,
-    address: item.address,
-    lat: item.location?.lat,
-    lng: item.location?.lng,
-    status: item.status,
-    statusKey: deriveStationStatus(item.status, availableUnits, totalUnits),
-    city: item.city || addressParts.city,
-    district: item.district || addressParts.district,
-    open24_7: Boolean(item.open24_7),
-    availableUnits,
-    totalUnits,
-    powerKw: 0,
-    chargingPoints: [],
-    connectorTypes: [],
-    detail: `${item.provider || "VinFast"} | ${(item.supportedVehicleModels || []).join(", ")}`
-  };
-}
-
 async function fetchStations() {
-  const [chargingResponse, swapResponse] = await Promise.all([
-    fetch("/api/stations?limit=50"),
-    fetch("/api/swap-stations?limit=50")
-  ]);
+  const chargingResponse = await fetch("/api/stations?limit=50");
 
-  if (!chargingResponse.ok || !swapResponse.ok) {
+  if (!chargingResponse.ok) {
     throw new Error("Khong the dong bo du lieu tram.");
   }
 
   const chargingData = await chargingResponse.json();
-  const swapData = await swapResponse.json();
 
-  return [
-    ...(Array.isArray(chargingData.items) ? chargingData.items.map(normalizeChargingStation) : []),
-    ...(Array.isArray(swapData.items) ? swapData.items.map(normalizeSwapStation) : [])
-  ].filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng));
+  return (Array.isArray(chargingData.items) ? chargingData.items.map(normalizeChargingStation) : [])
+    .filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng));
 }
 
 function uniqueSorted(values) {
@@ -1499,17 +1443,15 @@ function getFilteredStations() {
 }
 
 function buildPopupHtml(station) {
-  const badgeClass = station.type === "swap" ? "swap" : "";
-  const unitLabel = station.type === "swap" ? "o pin" : "cong sac";
+  const badgeClass = "";
+  const unitLabel = "cong sac";
   const statusClass = getStatusClass(station.statusKey);
 
   return `
     <div class="popup-card">
       <strong>${escapeHtml(station.name)}</strong>
       <p>${escapeHtml(station.address)}</p>
-      <p><span class="station-badge ${badgeClass}">${escapeHtml(
-        station.type === "swap" ? getText("swapOnly") : getText("charging")
-      )}</span></p>
+      <p><span class="station-badge ${badgeClass}">${escapeHtml(getText("charging"))}</span></p>
       <p><span class="station-status-badge ${statusClass}">${escapeHtml(
         getStatusLabel(station.statusKey)
       )}</span></p>
@@ -1548,9 +1490,7 @@ function renderMarkers() {
     const marker = L.marker([station.lat, station.lng], {
       icon: L.divIcon({
         className: "",
-        html: `<div class="marker-pin ${station.type === "swap" ? "swap" : ""} ${getStatusClass(
-          station.statusKey
-        )}"><span>${station.type === "swap" ? "SW" : "EV"}</span></div>`,
+        html: `<div class="marker-pin ${getStatusClass(station.statusKey)}"><span>EV</span></div>`,
         iconSize: [30, 30],
         iconAnchor: [14, 30],
         popupAnchor: [0, -24]
@@ -1581,11 +1521,7 @@ function renderStationList() {
   if (els.resultsTitle) {
     const currentType = els.stationType?.value || "all";
     els.resultsTitle.textContent =
-      currentType === "charging"
-        ? getText("listTitleCharging")
-        : currentType === "swap"
-          ? getText("listTitleSwap")
-          : getText("listTitleAll");
+      currentType === "charging" ? getText("listTitleCharging") : getText("listTitleAll");
   }
 
   if (!state.filteredStations.length) {
@@ -1596,8 +1532,8 @@ function renderStationList() {
   els.stationList.innerHTML = state.filteredStations
     .map((station) => {
       const isSelected = station.id === state.selectedStationId;
-      const typeLabel = station.type === "swap" ? getText("swapOnly") : getText("charging");
-      const typeClass = station.type === "swap" ? "swap" : "";
+      const typeLabel = getText("charging");
+      const typeClass = "";
       const statusClass = getStatusClass(station.statusKey);
 
       return `
@@ -1614,9 +1550,7 @@ function renderStationList() {
             </div>
           </div>
           <p>${escapeHtml(station.address)}</p>
-          <p>${escapeHtml(station.availableUnits)}/${escapeHtml(station.totalUnits)} ${
-            station.type === "swap" ? "slot" : "point"
-          } | ${escapeHtml(station.powerKw)} kW</p>
+          <p>${escapeHtml(station.availableUnits)}/${escapeHtml(station.totalUnits)} point | ${escapeHtml(station.powerKw)} kW</p>
           <p>${escapeHtml(station.detail || "--")}</p>
         </article>
       `;
@@ -2068,7 +2002,7 @@ function bindEvents() {
       localStorage.removeItem(storageKeys.adminProfile);
       localStorage.removeItem(storageKeys.publicProfile);
       closeFloatingMenus();
-      window.location.href = "/login";
+      window.location.href = "/admin/login";
     });
   }
 
@@ -2141,9 +2075,6 @@ function bindEvents() {
       if (view === "stations" && els.stationType) {
         els.stationType.value = "charging";
         applyFilters();
-      } else if (view === "swap" && els.stationType) {
-        els.stationType.value = "swap";
-        applyFilters();
       } else if (view === "notifications") {
         event.preventDefault();
         const shouldOpen = !els.notificationMenu.classList.contains("open");
@@ -2158,6 +2089,14 @@ function bindEvents() {
 }
 
 function bootstrap() {
+  const initialView = window.TRAM_SAC_CONFIG?.initialView || "map";
+
+  if (els.stationType) {
+    if (initialView === "stations") {
+      els.stationType.value = "charging";
+    }
+  }
+
   applyTheme();
   renderProfile();
   renderNotifications();
@@ -2166,5 +2105,21 @@ function bootstrap() {
   bindEvents();
   hydrateStations();
 }
+
+window.addEventListener("tram-sac:navigation", (event) => {
+  const view = event.detail?.view;
+
+  if (!els.stationType) {
+    return;
+  }
+
+  if (view === "stations") {
+    els.stationType.value = "charging";
+    applyFilters();
+  } else if (view === "map") {
+    els.stationType.value = "all";
+    applyFilters();
+  }
+});
 
 bootstrap();

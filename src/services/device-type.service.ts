@@ -6,6 +6,14 @@ export interface DeviceTypeResponse {
   name: string;
   code: string;
   manufacturer: string;
+  category: string;
+  vehicleTypes: string[];
+  connectorTypes: string[];
+  currentTypes: string[];
+  protocols: string[];
+  powerMinKw: number;
+  powerMaxKw: number;
+  active: boolean;
   description: string;
   image: string;
   createdById: string | null;
@@ -17,6 +25,14 @@ interface DeviceTypePayload {
   name: string;
   code: string;
   manufacturer?: string;
+  category?: string;
+  vehicleTypes?: string[];
+  connectorTypes?: string[];
+  currentTypes?: string[];
+  protocols?: string[];
+  powerMinKw?: number;
+  powerMaxKw?: number;
+  active?: boolean;
   description?: string;
   image?: string;
   createdById?: string | null;
@@ -29,6 +45,14 @@ const toDeviceTypeResponse = (item: IDeviceType): DeviceTypeResponse => ({
   name: item.name,
   code: item.code,
   manufacturer: item.manufacturer || '',
+  category: item.category || 'CHARGING_STATION',
+  vehicleTypes: item.vehicleTypes || [],
+  connectorTypes: item.connectorTypes || [],
+  currentTypes: item.currentTypes || [],
+  protocols: item.protocols || [],
+  powerMinKw: item.powerMinKw || 0,
+  powerMaxKw: item.powerMaxKw || 0,
+  active: item.active !== false,
   description: item.description || '',
   image: normalizeMediaUrl(item.image || ''),
   createdById: item.createdById ?? null,
@@ -78,6 +102,14 @@ export const createDeviceType = async (
     name: payload.name,
     code,
     manufacturer: payload.manufacturer || '',
+    category: payload.category || 'CHARGING_STATION',
+    vehicleTypes: payload.vehicleTypes || [],
+    connectorTypes: payload.connectorTypes || [],
+    currentTypes: payload.currentTypes || [],
+    protocols: payload.protocols || [],
+    powerMinKw: payload.powerMinKw || 0,
+    powerMaxKw: payload.powerMaxKw || 0,
+    active: payload.active !== false,
     description: payload.description || '',
     image,
     createdById: payload.createdById ?? null,
@@ -106,6 +138,14 @@ export const updateDeviceType = async (
   item.name = payload.name;
   item.code = code;
   item.manufacturer = payload.manufacturer || '';
+  item.category = payload.category || 'CHARGING_STATION';
+  item.vehicleTypes = payload.vehicleTypes || [];
+  item.connectorTypes = payload.connectorTypes || [];
+  item.currentTypes = payload.currentTypes || [];
+  item.protocols = payload.protocols || [];
+  item.powerMinKw = payload.powerMinKw || 0;
+  item.powerMaxKw = payload.powerMaxKw || 0;
+  item.active = payload.active !== false;
   item.description = payload.description || '';
   item.image = image;
   await item.save();
